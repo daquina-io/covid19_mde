@@ -41,3 +41,23 @@ colnames(infectados_df) <- infectados_df[1,]
 infectados_df <- infectados_df[-1,]
 
 infectados_df
+colnames(infectados_df) <- c("id", "date", "city", "localization", "age", "sex", "type", "origin" )
+infectados_df$date <- dmy(infectados_df$date)
+
+## Medellin
+mde_infectados_df <-  dplyr::filter(infectados_df, grepl("Mede",city))
+mde_infectados_df <- cbind(Row.Names = rownames(mde_infectados_df), mde_infectados_df)
+## corrige formato de fechas TODO sistematizar
+mde_infectados_df[3,3] = "2020-03-11"
+mde_infectados_df[2,3] = "2020-03-11"
+mde_infectados_df[1,3] = "2020-03-09"
+## deja el máximo diario TODO sistematizar
+mde_total_dia <- mde_infectados_df[c(1, 3, 5, 9, 18), ]
+## columna manual de totales (Row.Names la lee como factor)
+mde_total_dia$total <- c(1,3,5,9,18)
+
+## NO FUNCIONA: la columna Row.Names la lee como un factor
+p <- plot_ly(  x = mde_total_dia$date, y = mde_total_dia$total, type ='bar', color = I("plum4") )%>%
+    layout(yaxis = list(title = 'Confirmados Medellín COVID19'))
+    htmlwidgets::saveWidget(as_widget(p), "/tmp/covid19_mde.html")
+ggplotly(p)
