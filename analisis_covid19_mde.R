@@ -62,6 +62,6 @@ mde_infectados_df<-mde_infectados_df %>% group_by(`date`) %>% summarise(totalDia
 ## mde_total_dia$total <- c(1,3,5,9,18)
 
 p <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$totalDia, type ='bar', color = I("plum4") )%>%
-    layout(yaxis = list(title = 'Confirmados por día, Medellín COVID19'))
+    layout(yaxis = list(title = 'Nuevos diagnosticados por día, Medellín COVID19'))
     htmlwidgets::saveWidget(as_widget(p), "/tmp/covid19_mde.html")
 Graph.Mde <- ggplotly(p)
