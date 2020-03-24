@@ -61,7 +61,22 @@ mde_infectados_df<-mde_infectados_df %>% group_by(`date`) %>% summarise(totalDia
 ## ## columna manual de totales (Row.Names la lee como factor)
 ## mde_total_dia$total <- c(1,3,5,9,18)
 
-p <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$totalDia, type ='bar', color = I("plum4") )%>%
+porDiaMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$totalDia, type ='bar', color = I("plum4") )%>%
     layout(yaxis = list(title = 'Nuevos diagnosticados por día, Medellín COVID19'))
     htmlwidgets::saveWidget(as_widget(p), "/tmp/covid19_mde.html")
-Graph.Mde <- ggplotly(p)
+Graph.Mde <- ggplotly(porDiaMde)
+
+## Antioquia
+ant_infectados_df <-  dplyr::filter(infectados_df, grepl("Antioquia",localization))
+ant_infectados_df$date <- dmy(ant_infectados_df$date)
+                                        #ant_infectados_df <- cbind(Row.Names = rownames(ant_infectados_df), ant_infectados_df)
+ant_infectados_df<-ant_infectados_df %>% group_by(`date`) %>% summarise(totalDia=n())
+
+compare_data <- cbind(mde_infectados_df,ant_infectados_df)
+colnames(compare_data) <- c("date", "mdeTotalDia", "date2", "antTotalDia")
+porDiaAnt <- plot_ly(  x = compare_data$date, y = compare_data$antTotalDia, type ='bar', name= 'Antioquia',color = I("darkolivegreen4") )%>%
+    add_trace(y = compare_data$mdeTotalDia,  name = 'Medellin', color = I("plum4"))%>%
+    layout(yaxis = list(title = 'Nuevos diagnosticados por día, Antioquia COVID19'))
+htmlwidgets::saveWidget(as_widget(p), "/tmp/covid19_ant.html")
+Graph.Ant <- ggplotly(porDiaAnt)
+

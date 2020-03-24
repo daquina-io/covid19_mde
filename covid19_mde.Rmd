@@ -10,8 +10,14 @@ output:
 library(rmarkdown)
 source("analisis_covid19_mde.R")
 ```
+[fuente](https://infogram.com/api/live/flex/bc384047-e71c-47d9-b606-1eb6a29962e3/664bc407-2569-4ab8-b7fb-9deb668ddb7a)
 
-## Test gráfica Medellin
+## Nuevos casos por dia Medellin
 ```{r, echo=FALSE}
 Graph.Mde
+```
+
+## Nuevos casos por dia Medellin y Antioquia
+```{r, echo=FALSE}
+Graph.Ant
 ```
