@@ -58,6 +58,7 @@ ti = 1:length(mde_infectados_df$totalDia)
 m1 = lm(mde_infectados_df$totalDia~ti)
 m2 = lm(mde_infectados_df$totalDia~ti+I(ti^2))
 m3 = lm(mde_infectados_df$totalDia~ti+I(ti^2)+I(ti^3))
+m4 = lm(mde_infectados_df$totalDia~ti^2)
 data.fmt = list(color=rgb(0.8,0.8,0.8,0.8), width=4)
 line.fmt = list(dash="solid", width = 1.5, color=NULL)
 
@@ -65,7 +66,8 @@ porDiaMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$total, 
     layout(yaxis = list(title = 'Diagnosticados por día, Medellín COVID19'))%>%
     add_lines( y=predict(m1), line=line.fmt, name="Linear") %>%
     add_lines( y=predict(m2), line=line.fmt, name="Cuadratic") %>%
-    add_lines( y=predict(m3), line=line.fmt, name="Cubic")
+    add_lines( y=predict(m3), line=line.fmt, name="Cubic") %>%
+    add_lines( y=predict(m4), line=line.fmt, name="Exponential")
          htmlwidgets::saveWidget(as_widget(p), "/tmp/covid19_mde.html")
 Graph.Mde <- ggplotly(porDiaMde)
 
