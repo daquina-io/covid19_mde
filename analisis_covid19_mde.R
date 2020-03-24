@@ -58,7 +58,7 @@ ti = 1:length(mde_infectados_df$totalDia)
 m1 = lm(mde_infectados_df$totalDia~ti)
 m2 = lm(mde_infectados_df$totalDia~ti+I(ti^2))
 m3 = lm(mde_infectados_df$totalDia~ti+I(ti^2)+I(ti^3))
-m4 = lm(mde_infectados_df$totalDia~ti^2)
+m4 = lm(mde_infectados_df$totalDia~exp(ti))
 data.fmt = list(color=rgb(0.8,0.8,0.8,0.8), width=4)
 line.fmt = list(dash="solid", width = 1.5, color=NULL)
 
