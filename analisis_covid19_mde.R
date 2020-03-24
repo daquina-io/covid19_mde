@@ -5,10 +5,10 @@ if(!require(htmlwidgets)){install.packages("htmlwidgets")}
 if(!require(jsonlite)){install.packages("lsonlite")}
 if(!require(purrr)){install.packages("purrr")}
 
-
 json_file <- "https://pomber.github.io/covid19/timeseries.json"
 json_data <- fromJSON(json_file)
 
+## api via carlos valencia http://coronavirus-19-api.herokuapp.com/countries/
 
 colombia_data <- json_data$Colombia
 colombia_data$date <- ymd(colombia_data$date)
@@ -30,7 +30,7 @@ ggplotly(pm)
 ##
 ## Datos de instituto nacional de salud
 ##
-data <- fromJSON("https://e.infogram.com/api/live/flex/0e44ab71-9a20-43ab-89b3-0e73c594668f/dfee1a5c-5cc8-4e90-8efb-d5bdf2803bf6?")
+data <- fromJSON("https://infogram.com/api/live/flex/bc384047-e71c-47d9-b606-1eb6a29962e3/664bc407-2569-4ab8-b7fb-9deb668ddb7a")
 ninfectados <- dim(data$data)[2]
 
 infectados_df <- map(1:ninfectados, function(x) {
@@ -41,23 +41,27 @@ colnames(infectados_df) <- infectados_df[1,]
 infectados_df <- infectados_df[-1,]
 
 infectados_df
-colnames(infectados_df) <- c("id", "date", "city", "localization", "age", "sex", "type", "origin" )
-infectados_df$date <- dmy(infectados_df$date)
+
+colnames(infectados_df) <- c("id", "date", "city", "localization","status", "age", "sex", "type", "origin" )
+
+#infectados_df$date <- dmy(infectados_df$date)
 
 ## Medellin
-mde_infectados_df <-  dplyr::filter(infectados_df, grepl("Mede",city))
-mde_infectados_df <- cbind(Row.Names = rownames(mde_infectados_df), mde_infectados_df)
-## corrige formato de fechas TODO sistematizar
-mde_infectados_df[3,3] = "2020-03-11"
-mde_infectados_df[2,3] = "2020-03-11"
-mde_infectados_df[1,3] = "2020-03-09"
-## deja el máximo diario TODO sistematizar
-mde_total_dia <- mde_infectados_df[c(1, 3, 5, 9, 18), ]
-## columna manual de totales (Row.Names la lee como factor)
-mde_total_dia$total <- c(1,3,5,9,18)
 
-## NO FUNCIONA: la columna Row.Names la lee como un factor
-p <- plot_ly(  x = mde_total_dia$date, y = mde_total_dia$total, type ='bar', color = I("plum4") )%>%
-    layout(yaxis = list(title = 'Confirmados Medellín COVID19'))
+mde_infectados_df <-  dplyr::filter(infectados_df, grepl("Mede",city))
+mde_infectados_df$date <- dmy(mde_infectados_df$date)
+#mde_infectados_df <- cbind(Row.Names = rownames(mde_infectados_df), mde_infectados_df)
+mde_infectados_df<-mde_infectados_df %>% group_by(`date`) %>% summarise(totalDia=n())
+## corrige formato de fechas TODO sistematizar
+## mde_infectados_df[3,3] = "2020-03-11"
+## mde_infectados_df[2,3] = "2020-03-11"
+## mde_infectados_df[1,3] = "2020-03-09"
+## ## deja el máximo diario TODO sistematizar
+## mde_total_dia <- mde_infectados_df[c(1, 3, 5, 9, 18), ]
+## ## columna manual de totales (Row.Names la lee como factor)
+## mde_total_dia$total <- c(1,3,5,9,18)
+
+p <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$totalDia, type ='bar', color = I("plum4") )%>%
+    layout(yaxis = list(title = 'Confirmados por día, Medellín COVID19'))
     htmlwidgets::saveWidget(as_widget(p), "/tmp/covid19_mde.html")
-ggplotly(p)
+Graph.Mde <- ggplotly(p)

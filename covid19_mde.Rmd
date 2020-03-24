@@ -1,0 +1,17 @@
+---
+title: "COVID19 Medellin"
+output:
+  html_document:
+    toc: false
+    theme: spacelab
+---
+
+```{r, include=FALSE}
+library(rmarkdown)
+source("analisis_covid19_mde.R")
+```
+
+## Test gráfica Medellin
+```{r, echo=FALSE}
+Graph.Mde
+```
