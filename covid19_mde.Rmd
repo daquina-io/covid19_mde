@@ -18,6 +18,10 @@ source("analisis_covid19_mde.R")
 
 Total diagnosticados Colombia: `r totalColombiaInfectados`
 
+<p class="text-danger"> Fallecidos Colombia: `r fallecidos`</p>
+
+<p class="text-info">Recuperados Colombia: `r recuperados`</p>
+
 Total diagnosticados Medellín: `r totalMedellinInfectados` (`r round(totalMedellinInfectados/totalColombiaInfectados*100, 1)` % de los infectados en Colombia)
 
 ## Acumulados Medellín

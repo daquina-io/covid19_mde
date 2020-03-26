@@ -53,7 +53,8 @@ colnames(infectados_df) <- c("id", "date", "city", "localization","status", "age
 ultimaFecha <- max(infectados_df$date, na.rm=TRUE)
 ## Colombia
 totalColombiaInfectados <- max(as.numeric(infectados_df$id), na.rm=TRUE)
-
+fallecidos <- infectados_df %>% dplyr::filter(grepl("fallecido",status)) %>% nrow()
+recuperados <- infectados_df %>% dplyr::filter(grepl("recuperado",status)) %>% nrow()
 ## Medellin
 mde_infectados_df <-  dplyr::filter(infectados_df, grepl("Mede",city))
 mde_infectados_df$date <- dmy(mde_infectados_df$date)
