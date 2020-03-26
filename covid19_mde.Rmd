@@ -1,25 +1,45 @@
 ---
-title: "COVID19 Medellin"
+title: "COVID19 Medellín"
 output:
   html_document:
     toc: false
-    theme: spacelab
+    theme: darkly
 ---
 
 ```{r, include=FALSE}
 library(rmarkdown)
 source("analisis_covid19_mde.R")
 ```
-[fuente de los datos](https://infogram.com/api/live/flex/bc384047-e71c-47d9-b606-1eb6a29962e3/664bc407-2569-4ab8-b7fb-9deb668ddb7a)
+[Dataset del INS (fuente de los datos)](https://infogram.com/api/live/flex/bc384047-e71c-47d9-b606-1eb6a29962e3/664bc407-2569-4ab8-b7fb-9deb668ddb7a)
 
 [Código para repoducir estas gráficas (en R)](https://github.com/daquina-io/covid19_mde)
 
-## Nuevos casos por día Medellín
+Última fecha en el dataset: `r ultimaFecha`
+
+Total diagnosticados Colombia: `r totalColombiaInfectados`
+
+Total diagnosticados Medellín: `r totalMedellinInfectados` (`r round(totalMedellinInfectados/totalColombiaInfectados*100, 1)` % de los infectados en Colombia)
+
+## Acumulados Medellín
 ```{r, echo=FALSE}
-Graph.Mde
+Graph.Acumulados.Mde
 ```
 
-## Nuevos casos por día Medellín y Antioquia
+
+
+## Acumulados  Medellín y Antioquia
 ```{r, echo=FALSE}
 Graph.Ant
 ```
+
+## Acumulados Colombia
+```{r, echo=FALSE}
+Graph.Acum.Col
+```
+
+## Nuevos por día Colombia
+```{r, echo=FALSE}
+Graph.Col
+
+```
+
