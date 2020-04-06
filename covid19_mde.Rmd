@@ -8,6 +8,7 @@ output:
 
 ```{r, include=FALSE}
 library(rmarkdown)
+
 source("analisis_covid19_mde.R")
 ```
 [Dataset del INS (fuente de los datos)](https://infogram.com/api/live/flex/bc384047-e71c-47d9-b606-1eb6a29962e3/664bc407-2569-4ab8-b7fb-9deb668ddb7a)
@@ -22,14 +23,16 @@ Total diagnosticados Colombia: `r totalColombiaInfectados`
 
 <p class="text-info">Recuperados Colombia: `r recuperados`</p>
 
+Relación Fallecidos/Diagnosticados: `r round(fallecidos/totalColombiaInfectados*100, 1)`%
+
+Relación Recuperados/Diagnosticados: `r round(recuperados/totalColombiaInfectados*100, 1)`%
+
 Total diagnosticados Medellín: `r totalMedellinInfectados` (`r round(totalMedellinInfectados/totalColombiaInfectados*100, 1)` % de los infectados en Colombia)
 
 ## Acumulados Medellín
 ```{r, echo=FALSE}
 Graph.Acumulados.Mde
 ```
-
-
 
 ## Acumulados  Medellín y Antioquia
 ```{r, echo=FALSE}
@@ -42,6 +45,8 @@ Graph.Acum.Col
 ```
 
 ## Nuevos por día Colombia
+Cantidad afectada por la capacidad de analizar pruebas, se puede estabilizar al copar la capacidad.
+El INS reportó una falla en el proceso de pruebas que se refleja en la disminución de la capacidad de diagnosticar nuevos casos.
 ```{r, echo=FALSE}
 Graph.Col
 

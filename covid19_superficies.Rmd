@@ -1,0 +1,23 @@
+---
+title: "Superficies"
+output:
+  html_document:
+    toc: false
+    theme: darkly
+---
+
+```{r, include=FALSE}
+library(rmarkdown)
+
+source("analisis_covid19_superficies.R")
+```
+
+## Consenso de algunas fuentes en la duración del COVID19 sobre superficies
+```{r, echo=FALSE}
+Graph.Duration
+```
+
+## Fuentes
+```{r, echo=FALSE}
+Unique.Sources
+```
