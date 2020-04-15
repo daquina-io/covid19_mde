@@ -11,7 +11,7 @@ library(rmarkdown)
 
 source("analisis_covid19_mde.R")
 ```
-[Dataset del INS (fuente de los datos)](https://infogram.com/api/live/flex/bc384047-e71c-47d9-b606-1eb6a29962e3/664bc407-2569-4ab8-b7fb-9deb668ddb7a)
+[Dataset del INS (fuente de los datos)](https://docs.google.com/spreadsheets/d/1l76JEKrN9_2wdREXhL74qVgoppXJBqjP6G8oWxLipTA/export?format=csv&id=1l76JEKrN9_2wdREXhL74qVgoppXJBqjP6G8oWxLipTA&gid=0)
 
 [Código para repoducir estas gráficas (en R)](https://github.com/daquina-io/covid19_mde)
 
