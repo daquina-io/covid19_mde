@@ -11,19 +11,22 @@ if(!require(profvis)){install.packages("profvis")}
 ##
 ## Datos de instituto nacional de salud
 ##
-data <- read.csv("https://docs.google.com/spreadsheets/d/1l76JEKrN9_2wdREXhL74qVgoppXJBqjP6G8oWxLipTA/export?format=csv&id=1l76JEKrN9_2wdREXhL74qVgoppXJBqjP6G8oWxLipTA&gid=0", header = FALSE)
+data <- read.csv("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv", header = FALSE)
+head(data,5)
 data <- data[-1,]
 infectados_df <- data
-colnames(infectados_df) <- c("id", "date", "city", "localization","status", "age", "sex", "type", "origin" )
-infectados_df$date <- dmy(infectados_df$date)
+colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate" )
+infectados_df$date <- lubridate::ymd_hms(as.character(infectados_df$date))
+head(infectados_df$date, 5)
 ## Dataset
 ultimaFecha <- max(infectados_df$date, na.rm=TRUE)
 ## Colombia
 totalColombiaInfectados <- max(as.numeric(infectados_df$id), na.rm=TRUE)
 fallecidos <- infectados_df %>% dplyr::filter(grepl("Fallecido",status)) %>% nrow()
+
 recuperados <- infectados_df %>% dplyr::filter(grepl("Recuperado",status)) %>% nrow()
 ## Medellin
-mde_infectados_df <-  dplyr::filter(infectados_df, grepl("MEDE",city))
+mde_infectados_df <-  dplyr::filter(infectados_df, grepl("Medel",city))
 #mde_infectados_df$date <- dmy(mde_infectados_df$date)
 #mde_infectados_df <- cbind(Row.Names = rownames(mde_infectados_df), mde_infectados_df)
 mde_infectados_df<-mde_infectados_df %>% group_by(`date`) %>% summarise(totalDia=n())
@@ -54,17 +57,17 @@ porDiaMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$totalDi
 
 
 
-## Antioquia
-ant_infectados_df <-  dplyr::filter(infectados_df, grepl("ANTIOQUIA",localization))
-#ant_infectados_df$date <- dmy(ant_infectados_df$date)
-ant_infectados_df<-ant_infectados_df %>% group_by(`date`) %>% summarise(totalDia=n())
-ant_infectados_df$total <- cumsum(ant_infectados_df$totalDia)
-compare_data <- cbind(mde_infectados_df,ant_infectados_df)
-colnames(compare_data) <- c("date", "mdeTotalDia","mdeAcumulado", "date2", "antTotalDia", "antAcumulado")
-porDiaAnt <- plot_ly(  x = compare_data$date, y = compare_data$antAcumulado,  type ='scatter', mode = 'lines', line = list(width = 10), name= 'Antioquia',color = I("darkolivegreen") )%>%
-    add_trace(y = compare_data$mdeAcumulado,  name = 'Medellin', color = I("plum4"))%>%
-    layout(yaxis = list(title = 'Nuevos diagnosticos por día, Antioquia COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))
-Graph.Ant <- ggplotly(porDiaAnt)
+## ## Antioquia
+## ant_infectados_df <-  dplyr::filter(infectados_df, grepl("Antio",localization))
+## #ant_infectados_df$date <- dmy(ant_infectados_df$date)
+## ant_infectados_df<-ant_infectados_df %>% group_by(`date`) %>% summarise(totalDia=n())
+## ant_infectados_df$total <- cumsum(ant_infectados_df$totalDia)
+## compare_data <- cbind(mde_infectados_df,ant_infectados_df)
+## colnames(compare_data) <- c("date", "mdeTotalDia","mdeAcumulado", "date2", "antTotalDia", "antAcumulado")
+## porDiaAnt <- plot_ly(  x = compare_data$date, y = compare_data$antAcumulado,  type ='scatter', mode = 'lines', line = list(width = 10), name= 'Antioquia',color = I("darkolivegreen") )%>%
+##     add_trace(y = compare_data$mdeAcumulado,  name = 'Medellin', color = I("plum4"))%>%
+##     layout(yaxis = list(title = 'Nuevos diagnosticos por día, Antioquia COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))
+## Graph.Ant <- ggplotly(porDiaAnt)
 
 ## nuevos por día COL
 infectados_df<-infectados_df %>% group_by(`date`) %>% summarise(totalDia=n())

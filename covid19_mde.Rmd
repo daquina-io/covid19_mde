@@ -11,8 +11,7 @@ library(rmarkdown)
 
 source("analisis_covid19_mde.R")
 ```
-[Dataset del INS (fuente de los datos)](https://docs.google.com/spreadsheets/d/1l76JEKrN9_2wdREXhL74qVgoppXJBqjP6G8oWxLipTA/export?format=csv&id=1l76JEKrN9_2wdREXhL74qVgoppXJBqjP6G8oWxLipTA&gid=0)
-
+[Dataset (fuente de los datos)]("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv")"
 [Código para repoducir estas gráficas (en R)](https://github.com/daquina-io/covid19_mde)
 
 Última fecha en el dataset: `r ultimaFecha`
@@ -34,10 +33,6 @@ Total diagnosticados Medellín: `r totalMedellinInfectados` (`r round(totalMedel
 Graph.Acumulados.Mde
 ```
 
-## Acumulados  Medellín y Antioquia
-```{r, echo=FALSE}
-Graph.Ant
-```
 
 ## Acumulados Colombia
 ```{r, echo=FALSE}
