@@ -6,13 +6,15 @@ if(!require(htmlwidgets)){install.packages("htmlwidgets")}
 if(!require(jsonlite)){install.packages("lsonlite")}
 if(!require(purrr)){install.packages("purrr")}
 if(!require(profvis)){install.packages("profvis")}
+if(!require(DT)){install.packages("DT")}
+##profvis({
 ##profvis({
 
 ##
 ## Datos de instituto nacional de salud
 ##
 data <- read.csv("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv", header = FALSE)
-head(data,5)
+head(data,200)
 data <- data[-1,]
 infectados_df <- data
 colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate" )
@@ -32,7 +34,47 @@ mde_infectados_df <-  dplyr::filter(infectados_df, grepl("Medel",city))
 mde_infectados_df<-mde_infectados_df %>% group_by(`date`) %>% summarise(totalDia=n())
 mde_infectados_df$total <- cumsum(mde_infectados_df$totalDia)
 totalMedellinInfectados <-  max(as.numeric(mde_infectados_df$total), na.rm=TRUE)
+recuperados_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("Recuperado",status ))
+recuperados_mde <- nrow(na.omit(recuperados_mde))
+fallecidos_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("Fallecido",status ))
+fallecidos_mde <- nrow(na.omit(fallecidos_mde))
+uciMDE <-  infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("UCI",status ))  ## hay 400
+uciMDE <- nrow(na.omit(uciMDE))
+portionCalc <- (uciMDE * 100)/400
+portion <- paste0(portionCalc,"%")
 
+## Data
+owiData <- read.csv("https://covid.ourworldindata.org/data/ecdc/total_deaths.csv")
+head(owiData,5)
+owiData$Colombia
+
+## Data MDE
+mdeData <- read.csv("https://www.datos.gov.co/api/views/imj6-7tfq/rows.csv")
+head(mdeData,30)
+
+## === TABLE
+tableData <- list("Fallecidos_COL" = fallecidos, 
+                  "Diagnosticados_COL" = totalColombiaInfectados,
+                  "Fallecidos_MDE" = fallecidos_mde,
+                  "Diagnosticados_MDE" = totalMedellinInfectados,
+                  "En_UCI_MDE" = uciMDE,
+                  "Ocupacion_COVID19_UCI_s_MDE" = portion,
+                  "Relacion--Fallecidos_MDE_en_Diagnosticados_MDE" = paste0(round(fallecidos_mde/totalMedellinInfectados*100, 1)/100, "%" ) ,
+                  "Relacion--Recuperados_MDE_en_Diagnosticados_MDE" = paste0(round(recuperados_mde/totalMedellinInfectados*100, 1), "%"),
+                      "Relacion--Diagnosticados_MDE_en_COL" = paste0(round(totalMedellinInfectados/totalColombiaInfectados*100, 1), "%")
+                  )
+tableData <- as.data.frame(tableData)
+tableData2 <- data.frame(t(tableData))
+colnames(tableData2) <- tableData[, 1]
+table <- datatable(tableData2,
+                   style = "bootstrap",
+                   options = list(
+                       dom = 't',
+                       columnDefs = list(list(className = 'dt-center', targets = 0)),
+                       columnDefs = list(list(width='60px',targets= "_all"))
+                       ))
+
+## -- GRAPHS ?
 ti = 1:length(mde_infectados_df$totalDia)
 m1 = lm(mde_infectados_df$totalDia~ti)
 m2 = lm(mde_infectados_df$totalDia~ti+I(ti^2))
