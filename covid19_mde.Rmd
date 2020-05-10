@@ -11,22 +11,17 @@ library(rmarkdown)
 
 source("analisis_covid19_mde.R")
 ```
-[Dataset (fuente de los datos)]("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv")"
-[Código para repoducir estas gráficas (en R)](https://github.com/daquina-io/covid19_mde)
 
-Última fecha en el dataset: `r ultimaFecha`
 
-Total diagnosticados Colombia: `r totalColombiaInfectados`
 
-<p class="text-danger"> Fallecidos Colombia: `r fallecidos`</p>
 
-<p class="text-info">Recuperados Colombia: `r recuperados`</p>
+```{r, echo=FALSE}
+table
+```
+Última fecha en el dataset: `r ultimaFecha` / / 
+[Dataset (fuente de los datos)](https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv) / /
+[Código para repoducir estas gráficas (en R)](https://github.com/daquina-io/covid19_mde) 
 
-Relación Fallecidos/Diagnosticados: `r round(fallecidos/totalColombiaInfectados*100, 1)`%
-
-Relación Recuperados/Diagnosticados: `r round(recuperados/totalColombiaInfectados*100, 1)`%
-
-Total diagnosticados Medellín: `r totalMedellinInfectados` (`r round(totalMedellinInfectados/totalColombiaInfectados*100, 1)` % de los infectados en Colombia)
 
 ## Acumulados Medellín
 ```{r, echo=FALSE}
