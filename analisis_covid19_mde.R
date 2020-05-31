@@ -55,6 +55,10 @@ owiData$Colombia
 mdeData <- read.csv("https://www.datos.gov.co/api/views/imj6-7tfq/rows.csv")
 head(mdeData,30)
 
+## Dataset Defunciones MDE COLUMNA, REPETIDA NO CARGA
+##defunMDE <- read.csv("http://medata.gov.co/sites/default/files/medata_harvest_files/defunciones.csv")
+#head(defunMDE,10)
+
 ## === TABLE
 tableData <- c(fallecidos, totalColombiaInfectados, fallecidos_mde, totalMedellinInfectados, uciMDE, portion,  relacion_fallecido_diagnoticado_MDE, relacion_recuperados_MDE_en_Diagnosticados_MDE, relacion_diagnosticados_MDE_en_COL )
 dfTableData <- data.frame(tableData)
@@ -62,6 +66,7 @@ rownames(dfTableData) <- c("Fallecidos COL",
                            "Diagnosticados COL",
                            "Fallecidos MDE",
                            "Diagnosticados MDE",
+
                            "En UCI MDE",
                            "Ocupacion de UCI's en MDE por COVID19 (Asumiendo 400)",
                            "Relación:  Fallecidos MDE / Diagnosticados MDE",
@@ -100,6 +105,7 @@ acumuladosMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$tot
 porDiaMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$totalDia, type ='bar', color = I("plum4") )%>%
     layout(yaxis = list(title = 'Nuevos diagnosticos por día, Medellín COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))
    Graph.Mde <- ggplotly(porDiaMde)
+
 
 
 
