@@ -42,6 +42,9 @@ uciMDE <-  infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::fi
 uciMDE <- nrow(na.omit(uciMDE))
 portionCalc <- (uciMDE * 100)/400
 portion <- paste0(portionCalc,"%")
+relacion_fallecido_diagnoticado_MDE <-  paste0(round(fallecidos_mde/totalMedellinInfectados*100, 1)/100, "%" )
+relacion_recuperados_MDE_en_Diagnosticados_MDE <- paste0(round(recuperados_mde/totalMedellinInfectados*100, 1), "%")
+relacion_diagnosticados_MDE_en_COL <- paste0(round(totalMedellinInfectados/totalColombiaInfectados*100, 1), "%")
 
 ## Data
 owiData <- read.csv("https://covid.ourworldindata.org/data/ecdc/total_deaths.csv")
@@ -53,20 +56,18 @@ mdeData <- read.csv("https://www.datos.gov.co/api/views/imj6-7tfq/rows.csv")
 head(mdeData,30)
 
 ## === TABLE
-tableData <- list("Fallecidos_COL" = fallecidos, 
-                  "Diagnosticados_COL" = totalColombiaInfectados,
-                  "Fallecidos_MDE" = fallecidos_mde,
-                  "Diagnosticados_MDE" = totalMedellinInfectados,
-                  "En_UCI_MDE" = uciMDE,
-                  "Ocupacion_COVID19_UCI_s_MDE" = portion,
-                  "Relacion--Fallecidos_MDE_en_Diagnosticados_MDE" = paste0(round(fallecidos_mde/totalMedellinInfectados*100, 1)/100, "%" ) ,
-                  "Relacion--Recuperados_MDE_en_Diagnosticados_MDE" = paste0(round(recuperados_mde/totalMedellinInfectados*100, 1), "%"),
-                      "Relacion--Diagnosticados_MDE_en_COL" = paste0(round(totalMedellinInfectados/totalColombiaInfectados*100, 1), "%")
-                  )
-tableData <- as.data.frame(tableData)
-tableData2 <- data.frame(t(tableData))
-colnames(tableData2) <- tableData[, 1]
-table <- datatable(tableData2,
+tableData <- c(fallecidos, totalColombiaInfectados, fallecidos_mde, totalMedellinInfectados, uciMDE, portion,  relacion_fallecido_diagnoticado_MDE, relacion_recuperados_MDE_en_Diagnosticados_MDE, relacion_diagnosticados_MDE_en_COL )
+dfTableData <- data.frame(tableData)
+rownames(dfTableData) <- c("Fallecidos COL",
+                           "Diagnosticados COL",
+                           "Fallecidos MDE",
+                           "Diagnosticados MDE",
+                           "En UCI MDE",
+                           "Ocupacion de UCI's en MDE por COVID19 (Asumiendo 400)",
+                           "Relación:  Fallecidos MDE / Diagnosticados MDE",
+                           "Relación:  Recuperados MDE / Diagnosticados MDE ",
+                           "Relación:   Diagnosticados MDE / Diagnosticados COL" )
+table <- datatable(dfTableData,
                    style = "bootstrap",
                    options = list(
                        dom = 't',
@@ -84,13 +85,16 @@ data.fmt = list(color=rgb(0.8,0.8,0.8,0.8), width=4)
 line.fmt = list(dash="solid", width = 1.5, color=NULL)
 
 ## Acumulados MDE
+annotation1 <- list(yref = 'paper', xref = "x", y = 0.2, x = as.Date("2020-03-24"), text = "Inicia Cuarentena Colombia")
+annotation2 <- list(yref = 'paper', xref = "x", y = 0.6, x = as.Date("2020-05-08"), text = "Dia de la Madre")
 acumuladosMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$total, type ='scatter', mode = 'lines', line = list(width = 10), name='Medellin' )%>%
     layout(yaxis = list(title = 'Acumulados Medellín COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))%>%
-    add_lines( y=predict(m1), line=line.fmt, name="Linear") %>%
-    add_lines( y=predict(m2), line=line.fmt, name="Cuadratic") %>%
-    add_lines( y=predict(m3), line=line.fmt, name="Cubic") %>%
-    add_lines( y=predict(m4), line=line.fmt, name="Exponential")
+    layout(annotations= list(annotation1, annotation2))
     Graph.Acumulados.Mde <- ggplotly(acumuladosMde)
+    ## add_lines( y=predict(m1), line=line.fmt, name="Linear") %>%
+    ## add_lines( y=predict(m2), line=line.fmt, name="Cuadratic") %>%
+    ## add_lines( y=predict(m3), line=line.fmt, name="Cubic") %>%
+    ## add_lines( y=predict(m4), line=line.fmt, name="Exponential")
 
 ## Diagnosticados por dia MDE
 porDiaMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$totalDia, type ='bar', color = I("plum4") )%>%
