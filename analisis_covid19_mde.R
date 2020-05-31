@@ -7,6 +7,7 @@ if(!require(jsonlite)){install.packages("lsonlite")}
 if(!require(purrr)){install.packages("purrr")}
 if(!require(profvis)){install.packages("profvis")}
 if(!require(DT)){install.packages("DT")}
+if(!require(dplyr)){install.packages("dplyr")}
 ##profvis({
 ##profvis({
 
@@ -76,18 +77,46 @@ table <- datatable(dfTableData,
                        ))
 
 ## -- GRAPHS ?
-ti = 1:length(mde_infectados_df$totalDia)
-m1 = lm(mde_infectados_df$totalDia~ti)
-m2 = lm(mde_infectados_df$totalDia~ti+I(ti^2))
-m3 = lm(mde_infectados_df$totalDia~ti+I(ti^2)+I(ti^3))
-m4 = lm(mde_infectados_df$totalDia~exp(ti))
-data.fmt = list(color=rgb(0.8,0.8,0.8,0.8), width=4)
+# ti = 1:length(mde_infectados_df$totalDia)
+# m1 = lm(mde_infectados_df$totalDia~ti)
+# m2 = lm(mde_infectados_df$totalDia~ti+I(ti^2))
+# m3 = lm(mde_infectados_df$totalDia~ti+I(ti^2)+I(ti^3))
+# m4 = lm(mde_infectados_df$totalDia~exp(ti))
+# data.fmt = list(color=rgb(0.8,0.8,0.8,0.8), width=4)
 line.fmt = list(dash="solid", width = 1.5, color=NULL)
+
+# Ajuste de curva exponencial, adaptado de https://rpubs.com/mengxu/exponential-model
+
+# La ecuacion de ajuste es E(y) = alpha * exp(beta * x) + theta. 
+
+# Extraer una porcion de la tibble, de 2020-04-27 hasta 2020-05-28.
+mde_infectados_exp_df <- mde_infectados_df[46:77,]
+
+# Representacion del tiempo en enteros. Conteo de dias desde 2020-04-27.
+ti <- 1:length(mde_infectados_exp_df$total)
+
+# Seleccionar un valor inicial de la asintota $\theta$.
+# theta debe ser menor que min(y), y mayor que cero.
+theta.0 <- min(mde_infectados_exp_df$total) * 0.5  
+
+# Estimar el resto de los parametros iniciales usando un modelo lineal.
+exp_model.0 <- lm(log(total - theta.0) ~ ti, data=mde_infectados_exp_df)  
+alpha.0 <- exp(coef(exp_model.0)[1])
+beta.0 <- coef(exp_model.0)[2]
+
+# Agrupar parametros iniciales
+start <- list(alpha = alpha.0, beta = beta.0, theta = theta.0)
+
+# Realizar el ajuste usando un modelo no lineal.
+exp_model <- nls(total ~ alpha * exp(beta * ti) + theta , data = mde_infectados_exp_df, start = start)
+
+# Calcular valores de la regresion (eje y).
+exp_reg <- predict(exp_model,list(Time=mde_infectados_exp_df$date))
 
 ## Acumulados MDE
 annotation1 <- list(yref = 'paper', xref = "x", y = 0.2, x = as.Date("2020-03-24"), text = "Inicia Cuarentena Colombia")
 annotation2 <- list(yref = 'paper', xref = "x", y = 0.6, x = as.Date("2020-05-08"), text = "Dia de la Madre")
-acumuladosMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$total, type ='scatter', mode = 'lines', line = list(width = 10), name='Medellin' )%>%
+acumuladosMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$total, type ='scatter', mode = 'lines', line = list(width = 2), name='Medellin' )%>%
     layout(yaxis = list(title = 'Acumulados Medellín COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))%>%
     layout(annotations= list(annotation1, annotation2))
     Graph.Acumulados.Mde <- ggplotly(acumuladosMde)
@@ -95,6 +124,7 @@ acumuladosMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$tot
     ## add_lines( y=predict(m2), line=line.fmt, name="Cuadratic") %>%
     ## add_lines( y=predict(m3), line=line.fmt, name="Cubic") %>%
     ## add_lines( y=predict(m4), line=line.fmt, name="Exponential")
+    Graph.Acumulados.Mde <- Graph.Acumulados.Mde %>% add_lines( x=mde_infectados_exp_df$date, y=exp_reg, line=line.fmt, name="Exponencial")
 
 ## Diagnosticados por dia MDE
 porDiaMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$totalDia, type ='bar', color = I("plum4") )%>%
