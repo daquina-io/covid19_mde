@@ -15,7 +15,7 @@ if(!require(dplyr)){install.packages("dplyr")}
 ## Datos de instituto nacional de salud
 ##
 data <- read.csv("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv", header = FALSE)
-head(data,200)
+tail(data,20)
 data <- data[-1,]
 infectados_df <- data
 colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate" )
@@ -35,6 +35,8 @@ mde_infectados_df <-  dplyr::filter(infectados_df, grepl("Medel",city))
 mde_infectados_df<-mde_infectados_df %>% group_by(`date`) %>% summarise(totalDia=n())
 mde_infectados_df$total <- cumsum(mde_infectados_df$totalDia)
 totalMedellinInfectados <-  max(as.numeric(mde_infectados_df$total), na.rm=TRUE)
+activos_MDE <-  dplyr::filter(infectados_df, grepl("Medel",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
+en_casa_MDE <-   dplyr::filter(infectados_df, grepl("Medel",city)) %>% dplyr::filter(grepl("Casa",status ))  %>% nrow()
 recuperados_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("Recuperado",status ))
 recuperados_mde <- nrow(na.omit(recuperados_mde))
 fallecidos_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("Fallecido",status ))
@@ -61,13 +63,24 @@ head(mdeData,30)
 #head(defunMDE,10)
 
 ## === TABLE
-tableData <- c(fallecidos, totalColombiaInfectados, fallecidos_mde, totalMedellinInfectados, uciMDE, portion,  relacion_fallecido_diagnoticado_MDE, relacion_recuperados_MDE_en_Diagnosticados_MDE, relacion_diagnosticados_MDE_en_COL )
+tableData <- c(fallecidos,
+               totalColombiaInfectados,
+               fallecidos_mde,
+               totalMedellinInfectados,
+               activos_MDE,
+               en_casa_MDE,
+               uciMDE,
+               portion,
+               relacion_fallecido_diagnoticado_MDE,
+               relacion_recuperados_MDE_en_Diagnosticados_MDE,
+               relacion_diagnosticados_MDE_en_COL )
 dfTableData <- data.frame(tableData)
 rownames(dfTableData) <- c("Fallecidos COL",
                            "Diagnosticados COL",
                            "Fallecidos MDE",
                            "Diagnosticados MDE",
-
+                           "Activos MDE",
+                           "En Casa MDE",
                            "En UCI MDE",
                            "Ocupacion de UCI's en MDE por COVID19 (Asumiendo 400)",
                            "Relación:  Fallecidos MDE / Diagnosticados MDE",
