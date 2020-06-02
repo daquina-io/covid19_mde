@@ -15,10 +15,10 @@ if(!require(dplyr)){install.packages("dplyr")}
 ## Datos de instituto nacional de salud
 ##
 data <- read.csv("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv", header = FALSE)
-tail(data,20)
+head(data,20)
 data <- data[-1,]
 infectados_df <- data
-colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate" )
+colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate", "tipo_recuperacion" )
 infectados_df$date <- lubridate::ymd_hms(as.character(infectados_df$date))
 head(infectados_df$date, 5)
 ## Dataset
@@ -81,6 +81,7 @@ rownames(dfTableData) <- c("Fallecidos COL",
                            "Diagnosticados MDE",
                            "Activos MDE",
                            "En Casa MDE",
+
                            "En UCI MDE",
                            "Ocupacion de UCI's en MDE por COVID19 (Asumiendo 400)",
                            "Relación:  Fallecidos MDE / Diagnosticados MDE",
