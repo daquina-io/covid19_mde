@@ -43,9 +43,9 @@ fallecidos_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dpl
 fallecidos_mde <- nrow(na.omit(fallecidos_mde))
 uciMDE <-  infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("UCI",status ))  ## hay 400
 uciMDE <- nrow(na.omit(uciMDE))
-portionCalc <- (uciMDE * 100)/400
+portionCalc <- (uciMDE * 100)/80
 portion <- paste0(portionCalc,"%")
-relacion_fallecido_diagnoticado_MDE <-  paste0(round(fallecidos_mde/totalMedellinInfectados*100, 1)/100, "%" )
+relacion_fallecido_diagnoticado_MDE <-  paste0(round(fallecidos_mde/totalMedellinInfectados*100, 1), "%" )
 relacion_recuperados_MDE_en_Diagnosticados_MDE <- paste0(round(recuperados_mde/totalMedellinInfectados*100, 1), "%")
 relacion_diagnosticados_MDE_en_COL <- paste0(round(totalMedellinInfectados/totalColombiaInfectados*100, 1), "%")
 
@@ -65,11 +65,12 @@ head(mdeData,30)
 ## === TABLE
 tableData <- c(fallecidos,
                totalColombiaInfectados,
-               fallecidos_mde,
                totalMedellinInfectados,
+               recuperados_mde,
                activos_MDE,
                en_casa_MDE,
                uciMDE,
+               fallecidos_mde,
                portion,
                relacion_fallecido_diagnoticado_MDE,
                relacion_recuperados_MDE_en_Diagnosticados_MDE,
@@ -77,13 +78,13 @@ tableData <- c(fallecidos,
 dfTableData <- data.frame(tableData)
 rownames(dfTableData) <- c("Fallecidos COL",
                            "Diagnosticados COL",
-                           "Fallecidos MDE",
                            "Diagnosticados MDE",
+                           "Recuperados MDE",
                            "Activos MDE",
                            "En Casa MDE",
-
                            "En UCI MDE",
-                           "Ocupacion de UCI's en MDE por COVID19 (Asumiendo 400)",
+                           "Fallecidos MDE",
+                           "Ocupacion de UCI's en MDE por COVID19 (Asumiendo 80 )",
                            "Relación:  Fallecidos MDE / Diagnosticados MDE",
                            "Relación:  Recuperados MDE / Diagnosticados MDE ",
                            "Relación:   Diagnosticados MDE / Diagnosticados COL" )
@@ -92,7 +93,8 @@ table <- datatable(dfTableData,
                    options = list(
                        dom = 't',
                        columnDefs = list(list(className = 'dt-center', targets = 0)),
-                       columnDefs = list(list(width='60px',targets= "_all"))
+                       columnDefs = list(list(width='60px',targets= "_all")),
+                       pageLength = 12
                        ))
 
 ## -- GRAPHS ?
