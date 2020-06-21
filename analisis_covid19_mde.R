@@ -18,9 +18,10 @@ data <- read.csv("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv", header
 head(data,20)
 data <- data[-1,]
 infectados_df <- data
-colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate", "tipo_recuperacion" )
+colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate", "tipo_recuperacion", "departamento","codigo_pais", "pertenencia_etnica" )
 infectados_df$date <- lubridate::ymd_hms(as.character(infectados_df$date))
 head(infectados_df$date, 5)
+
 ## Dataset
 ultimaFecha <- max(infectados_df$date, na.rm=TRUE)
 ## Colombia
@@ -36,6 +37,10 @@ mde_infectados_df<-mde_infectados_df %>% group_by(`date`) %>% summarise(totalDia
 mde_infectados_df$total <- cumsum(mde_infectados_df$totalDia)
 totalMedellinInfectados <-  max(as.numeric(mde_infectados_df$total), na.rm=TRUE)
 activos_MDE <-  dplyr::filter(infectados_df, grepl("Medel",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
+activos_ENV <-  dplyr::filter(infectados_df, grepl("Envi",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
+activos_ITA <-  dplyr::filter(infectados_df, grepl("Itag",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
+activos_LAE <-  dplyr::filter(infectados_df, grepl("Estrell",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
+activos_BEL <-  dplyr::filter(infectados_df, grepl("Bello",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
 en_casa_MDE <-   dplyr::filter(infectados_df, grepl("Medel",city)) %>% dplyr::filter(grepl("Casa",status ))  %>% nrow()
 recuperados_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("Recuperado",status ))
 recuperados_mde <- nrow(na.omit(recuperados_mde))
@@ -66,35 +71,39 @@ head(mdeData,30)
 tableData <- c(fallecidos,
                totalColombiaInfectados,
                totalMedellinInfectados,
-               recuperados_mde,
                activos_MDE,
+               activos_ENV,
+               activos_ITA,
+               activos_LAE,
+               activos_BEL,
                en_casa_MDE,
                uciMDE,
                fallecidos_mde,
                portion,
                relacion_fallecido_diagnoticado_MDE,
-               relacion_recuperados_MDE_en_Diagnosticados_MDE,
                relacion_diagnosticados_MDE_en_COL )
 dfTableData <- data.frame(tableData)
 rownames(dfTableData) <- c("Fallecidos COL",
                            "Diagnosticados COL",
                            "Diagnosticados MDE",
-                           "Recuperados MDE",
                            "Activos MDE",
+                           "Activos ENV",
+                           "Activos ITA",
+                           "Activos LAE",
+                           "Activos BEL",
                            "En Casa MDE",
                            "En UCI MDE",
                            "Fallecidos MDE",
                            "Ocupacion de UCI's en MDE por COVID19 (Asumiendo 80 )",
                            "Relación:  Fallecidos MDE / Diagnosticados MDE",
-                           "Relación:  Recuperados MDE / Diagnosticados MDE ",
                            "Relación:   Diagnosticados MDE / Diagnosticados COL" )
 table <- datatable(dfTableData,
                    style = "bootstrap",
                    options = list(
                        dom = 't',
-                       columnDefs = list(list(className = 'dt-center', targets = 0)),
-                       columnDefs = list(list(width='60px',targets= "_all")),
-                       pageLength = 12
+                       columnDefs = list(list(className = 'dt-right', targets = 1),list(className = 'dt-center', targets = 0)),
+                       #columnDefs = list(list(width='40px',targets= "_all")),
+                       pageLength = 14
                        ))
 
 ## -- GRAPHS ?
@@ -135,11 +144,19 @@ exp_model <- nls(total ~ alpha * exp(beta * ti) + theta , data = mde_infectados_
 exp_reg <- predict(exp_model,list(Time=mde_infectados_exp_df$date))
 
 ## Acumulados MDE
-annotation1 <- list(yref = 'paper', xref = "x", y = 0.2, x = as.Date("2020-03-24"), text = "Inicia Cuarentena Colombia")
-annotation2 <- list(yref = 'paper', xref = "x", y = 0.6, x = as.Date("2020-05-08"), text = "Dia de la Madre")
+## - Annotations relative Y value
+annY1 <- totalMedellinInfectados * 0.00008
+annY2 <- totalMedellinInfectados * 0.00026
+annY3 <- totalMedellinInfectados * 0.00044
+annY4 <- totalMedellinInfectados * 0.00082
+
+annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2020-03-24"), text = "Inicia Cuarentena Colombia")
+annotation2 <- list(yref = 'paper', xref = "x", y = annY2, x = as.Date("2020-05-08"), text = "Dia de la Madre")
+annotation3 <- list(yref = 'paper', xref = "x", y = annY3, x = as.Date("2020-06-01"), text = "Flexibilización Cuarent.")
+annotation4 <- list(yref = 'paper', xref = "x", y = annY4, x = as.Date("2020-06-19"), text = "Día sin IVA")
 acumuladosMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$total, type ='scatter', mode = 'lines', line = list(width = 2), name='Medellin' )%>%
     layout(yaxis = list(title = 'Acumulados Medellín COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))%>%
-    layout(annotations= list(annotation1, annotation2))
+    layout(annotations= list(annotation1, annotation2, annotation3, annotation4))
     Graph.Acumulados.Mde <- ggplotly(acumuladosMde)
     ## add_lines( y=predict(m1), line=line.fmt, name="Linear") %>%
     ## add_lines( y=predict(m2), line=line.fmt, name="Cuadratic") %>%
