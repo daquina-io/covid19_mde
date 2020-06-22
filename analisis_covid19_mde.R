@@ -117,7 +117,7 @@ line.fmt = list(dash="solid", width = 1.5, color=NULL)
 
 # Ajuste de curva exponencial, adaptado de https://rpubs.com/mengxu/exponential-model
 
-# La ecuacion de ajuste es E(y) = alpha * exp(beta * x) + theta. 
+# La ecuacion de ajuste es E(y) = alpha * exp(beta * x) + theta.
 
 # Extraer una porcion de la tibble, de 2020-04-27 hasta 2020-05-28.
 mde_infectados_exp_df <- mde_infectados_df[46:77,]
@@ -127,10 +127,10 @@ ti <- 1:length(mde_infectados_exp_df$total)
 
 # Seleccionar un valor inicial de la asintota $\theta$.
 # theta debe ser menor que min(y), y mayor que cero.
-theta.0 <- min(mde_infectados_exp_df$total) * 0.5  
+theta.0 <- min(mde_infectados_exp_df$total) * 0.5
 
 # Estimar el resto de los parametros iniciales usando un modelo lineal.
-exp_model.0 <- lm(log(total - theta.0) ~ ti, data=mde_infectados_exp_df)  
+exp_model.0 <- lm(log(total - theta.0) ~ ti, data=mde_infectados_exp_df)
 alpha.0 <- exp(coef(exp_model.0)[1])
 beta.0 <- coef(exp_model.0)[2]
 
@@ -144,12 +144,18 @@ exp_model <- nls(total ~ alpha * exp(beta * ti) + theta , data = mde_infectados_
 exp_reg <- predict(exp_model,list(Time=mde_infectados_exp_df$date))
 
 ## Acumulados MDE
-## - Annotations relative Y value
-annY1 <- totalMedellinInfectados * 0.00008
-annY2 <- totalMedellinInfectados * 0.00026
-annY3 <- totalMedellinInfectados * 0.00044
-annY4 <- totalMedellinInfectados * 0.00082
+## - Annotations relative Y value (cambio de rango)  TODO verificar cuando valor minimo sea 1 o mas
+changeRange <- function(oldValue, oldMin, oldMax, newMin, newMax){
+    oldRange <- (oldMax - oldMin)
+    newRange <- (newMax - newMin)
+    newValue <-(((oldValue - oldMin) * newRange) / oldRange) + newMin
+    return(newValue)
+}
 
+annY1 <- changeRange(0.08, 0, 1, 0, totalMedellinInfectados)/1000
+annY2 <- changeRange(0.24, 0, 1, 0, totalMedellinInfectados)/1000
+annY3 <- changeRange(0.42, 0, 1, 0, totalMedellinInfectados)/1000
+annY4 <- changeRange(0.78, 0, 1, 0, totalMedellinInfectados)/1000
 annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2020-03-24"), text = "Inicia Cuarentena Colombia")
 annotation2 <- list(yref = 'paper', xref = "x", y = annY2, x = as.Date("2020-05-08"), text = "Dia de la Madre")
 annotation3 <- list(yref = 'paper', xref = "x", y = annY3, x = as.Date("2020-06-01"), text = "Flexibilización Cuarent.")
