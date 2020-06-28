@@ -18,7 +18,7 @@ data <- read.csv("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv", header
 head(data,20)
 data <- data[-1,]
 infectados_df <- data
-colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate", "tipo_recuperacion", "departamento","codigo_pais", "pertenencia_etnica" )
+colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate", "tipo_recuperacion", "departamento","codigo_pais", "pertenencia_etnica", "nombre_grupo_etnico" )
 infectados_df$date <- lubridate::ymd_hms(as.character(infectados_df$date))
 head(infectados_df$date, 5)
 
@@ -46,6 +46,8 @@ recuperados_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dp
 recuperados_mde <- nrow(na.omit(recuperados_mde))
 fallecidos_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("Fallecido",status ))
 fallecidos_mde <- nrow(na.omit(fallecidos_mde))
+fallecidos_por_millon_mde <- paste0(round(
+    fallecidos_mde/2529403, digits = 2), "%")
 uciMDE <-  infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("UCI",status ))  ## hay 400
 uciMDE <- nrow(na.omit(uciMDE))
 portionCalc <- (uciMDE * 100)/80
@@ -144,18 +146,19 @@ exp_model <- nls(total ~ alpha * exp(beta * ti) + theta , data = mde_infectados_
 exp_reg <- predict(exp_model,list(Time=mde_infectados_exp_df$date))
 
 ## Acumulados MDE
-## - Annotations relative Y value (cambio de rango)  TODO verificar cuando valor minimo sea 1 o mas
+## - Annotations relative Y value (cambio de rango inversamente proporcional)  TODO verificar cuando valor minimo sea 1 o mas
 changeRange <- function(oldValue, oldMin, oldMax, newMin, newMax){
     oldRange <- (oldMax - oldMin)
     newRange <- (newMax - newMin)
-    newValue <-(((oldValue - oldMin) * newRange) / oldRange) + newMin
+    newValue <-(((oldValue - oldMin) / newRange) * oldRange) + newMin
     return(newValue)
 }
 
-annY1 <- changeRange(0.08, 0, 1, 0, totalMedellinInfectados)/1000
-annY2 <- changeRange(0.24, 0, 1, 0, totalMedellinInfectados)/1000
-annY3 <- changeRange(0.42, 0, 1, 0, totalMedellinInfectados)/1000
-annY4 <- changeRange(0.78, 0, 1, 0, totalMedellinInfectados)/1000
+annY1 <-  changeRange(0.08, 0, 1600, 0, totalMedellinInfectados)
+annY2 <- changeRange(0.24, 0, 1600, 0, totalMedellinInfectados)
+
+annY3 <- changeRange(0.42, 0, 1600, 0, totalMedellinInfectados)
+annY4 <-  changeRange(0.82, 0, 1600, 0, totalMedellinInfectados)
 annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2020-03-24"), text = "Inicia Cuarentena Colombia")
 annotation2 <- list(yref = 'paper', xref = "x", y = annY2, x = as.Date("2020-05-08"), text = "Dia de la Madre")
 annotation3 <- list(yref = 'paper', xref = "x", y = annY3, x = as.Date("2020-06-01"), text = "Flexibilización Cuarent.")
