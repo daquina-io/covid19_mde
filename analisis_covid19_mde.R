@@ -107,7 +107,7 @@ table <- datatable(dfTableData,
                        dom = 't',
                        columnDefs = list(list(className = 'dt-right', targets = 1),list(className = 'dt-center', targets = 0)),
                        #columnDefs = list(list(width='40px',targets= "_all")),
-                       pageLength = 14
+                       pageLength = 15
                        ))
 
 ## -- GRAPHS ?
