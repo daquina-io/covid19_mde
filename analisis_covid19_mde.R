@@ -46,8 +46,8 @@ recuperados_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dp
 recuperados_mde <- nrow(na.omit(recuperados_mde))
 fallecidos_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("Fallecido",status ))
 fallecidos_mde <- nrow(na.omit(fallecidos_mde))
-fallecidos_por_millon_mde <- paste0(round(
-    fallecidos_mde/2529403, digits = 2), "%")
+fallecidos_por_millon_mde <- format(round(
+    (fallecidos_mde/2529403)*1000000,  2), scientific = FALSE)
 uciMDE <-  infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("UCI",status ))  ## hay 400
 uciMDE <- nrow(na.omit(uciMDE))
 portionCalc <- (uciMDE * 100)/80
@@ -81,6 +81,7 @@ tableData <- c(fallecidos,
                en_casa_MDE,
                uciMDE,
                fallecidos_mde,
+               fallecidos_por_millon_mde,
                portion,
                relacion_fallecido_diagnoticado_MDE,
                relacion_diagnosticados_MDE_en_COL )
@@ -96,6 +97,7 @@ rownames(dfTableData) <- c("Fallecidos COL",
                            "En Casa MDE",
                            "En UCI MDE",
                            "Fallecidos MDE",
+                           "Fallecidos por Millon MDE",
                            "Ocupacion de UCI's en MDE por COVID19 (Asumiendo 80 )",
                            "Relación:  Fallecidos MDE / Diagnosticados MDE",
                            "Relación:   Diagnosticados MDE / Diagnosticados COL" )
@@ -156,9 +158,8 @@ changeRange <- function(oldValue, oldMin, oldMax, newMin, newMax){
 
 annY1 <-  changeRange(0.08, 0, 1600, 0, totalMedellinInfectados)
 annY2 <- changeRange(0.24, 0, 1600, 0, totalMedellinInfectados)
-
 annY3 <- changeRange(0.42, 0, 1600, 0, totalMedellinInfectados)
-annY4 <-  changeRange(0.82, 0, 1600, 0, totalMedellinInfectados)
+annY4 <-  changeRange(0.89, 0, 1600, 0, totalMedellinInfectados)
 annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2020-03-24"), text = "Inicia Cuarentena Colombia")
 annotation2 <- list(yref = 'paper', xref = "x", y = annY2, x = as.Date("2020-05-08"), text = "Dia de la Madre")
 annotation3 <- list(yref = 'paper', xref = "x", y = annY3, x = as.Date("2020-06-01"), text = "Flexibilización Cuarent.")
