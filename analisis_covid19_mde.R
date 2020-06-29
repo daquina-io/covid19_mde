@@ -30,7 +30,8 @@ totalColombiaInfectados <- max(as.numeric(infectados_df$id), na.rm=TRUE)
 tipos_estado <- c("Recuperado", "Fallecido", "Hospital", "Hospital UCI", "N/A", "Casa")
 
 ## Filtro de estados
-filter_status <- function(df, status_fltr=tipos_estado) {
+filter_status <- function(df, status_fltr=tipos_estado, inverse_logic = FALSE) {
+    if(inverse_logic) return(df %>% filter(!(status %in% status_fltr)))
     df %>% filter(status %in% status_fltr)
 }
 
@@ -58,8 +59,13 @@ mde_infectados_df <- infectados_df %>% filter_city("[M|m]edel")
 #mde_infectados_df <- cbind(Row.Names = rownames(mde_infectados_df), mde_infectados_df)
 mde_infectados_df<-mde_infectados_df %>% group_by(`date`) %>% summarise(totalDia=n())
 mde_infectados_df$total <- cumsum(mde_infectados_df$totalDia)
+
 totalMedellinInfectados <-  max(as.numeric(mde_infectados_df$total), na.rm=TRUE)
-activos_MDE <-  dplyr::filter(infectados_df, grepl("Medel",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
+
+## Otra manera de detectar los no Recuperados y no Fallecidos
+activos_MDE <- infectados_df %>% filter_city("[M|m]edel") %>% filter_status(c("Recuperado","Fallecido"), inverse_logic = TRUE) %>% nrow()
+## | Que se puede replicar acá
+## V
 activos_ENV <-  dplyr::filter(infectados_df, grepl("Envi",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
 activos_ITA <-  dplyr::filter(infectados_df, grepl("Itag",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
 activos_LAE <-  dplyr::filter(infectados_df, grepl("Estrell",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
