@@ -3,7 +3,7 @@ rm(list=ls())
 if(!require(plotly)){install.packages("plotly")}
 if(!require(lubridate)){install.packages("lubridate")}
 if(!require(htmlwidgets)){install.packages("htmlwidgets")}
-if(!require(jsonlite)){install.packages("lsonlite")}
+if(!require(jsonlite)){install.packages("jsonlite")}
 if(!require(purrr)){install.packages("purrr")}
 if(!require(profvis)){install.packages("profvis")}
 if(!require(DT)){install.packages("DT")}
@@ -26,11 +26,34 @@ head(infectados_df$date, 5)
 ultimaFecha <- max(infectados_df$date, na.rm=TRUE)
 ## Colombia
 totalColombiaInfectados <- max(as.numeric(infectados_df$id), na.rm=TRUE)
-fallecidos <- infectados_df %>% dplyr::filter(grepl("Fallecido",status)) %>% nrow()
+## Tipos de estado
+tipos_estado <- c("Recuperado", "Fallecido", "Hospital", "Hospital UCI", "N/A", "Casa")
 
-recuperados <- infectados_df %>% dplyr::filter(grepl("Recuperado",status)) %>% nrow()
+## Filtro de estados
+filter_status <- function(df, status_fltr=tipos_estado) {
+    df %>% filter(status %in% status_fltr)
+}
+
+fallecidos <- filter_status(infectados_df, c("Fallecido")) %>% nrow()
+recuperados <- filter_status(infectados_df, c("Recuperado")) %>% nrow()
+
+## Tipos de ciudades
+## Agrega status por ciudad y por fecha
+summary_cities <- function(df=infectados_df, by_date=FALSE, date_range=c("2020-01-01","2030-01-01")){
+    if(!by_date) return(
+                     df %>% group_by(departamento, city, status) %>% summarise(cantidad=n())
+                 )
+    df %>% filter(date >= date_range[1], date <= date_range[2]) %>% group_by(departamento, city, date, status) %>% summarise(cantidad=n())
+}
+
+## Filtro de ciudades
+filter_city <- function(df, city_fltr="[M|m]edel") {
+    df %>% filter(stringr::str_detect(df$city,city_fltr))
+}
+
+filter_city(infectados_df)
 ## Medellin
-mde_infectados_df <-  dplyr::filter(infectados_df, grepl("Medel",city))
+mde_infectados_df <- infectados_df %>% filter_city("[M|m]edel")
 #mde_infectados_df$date <- dmy(mde_infectados_df$date)
 #mde_infectados_df <- cbind(Row.Names = rownames(mde_infectados_df), mde_infectados_df)
 mde_infectados_df<-mde_infectados_df %>% group_by(`date`) %>% summarise(totalDia=n())
