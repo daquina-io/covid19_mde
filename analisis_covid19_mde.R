@@ -47,12 +47,29 @@ summary_cities <- function(df=infectados_df, by_date=FALSE, date_range=c("2020-0
     df %>% filter(date >= date_range[1], date <= date_range[2]) %>% group_by(departamento, city, date, status) %>% summarise(cantidad=n())
 }
 
+summary_cities(by_date = TRUE) %>% filter(city %in% c())
+
 ## Filtro de ciudades
-filter_city <- function(df, city_fltr="[M|m]edel") {
+## Se puede pasar un array de patrones regex para filtrar, o uno solo string con el patrón regex para filtrar
+filter_city <- function(df, city_fltr=c("[M|m]edel","Envi")) {
+    if(typeof(city_fltr)  == "character" & length(city_fltr) > 1) {
+        d <- map(city_fltr, function(c) {
+            df %>% filter(stringr::str_detect(df$city,c))
+        }) %>% tibble::enframe(.) %>% tidyr::unnest(., cols = c(value))
+        return(d[,-1])
+    }
     df %>% filter(stringr::str_detect(df$city,city_fltr))
 }
 
-filter_city(infectados_df)
+## Ejemplo de uso
+## aca filtra los patrones por defecto c("[M|m]edel","Envi")
+filter_city(infectados_df) %>% select(city) %>% unique
+## Acá filtra el patrón regex solo para Medellín
+infectados_df %>% filter_city("[M|m]edel") %>% select(city) %>% unique
+##################
+## Así agrego todos los datos para todas las ciudades y filtro solo las que deseo tener en cuenta
+datos <- summary_cities(by_date = TRUE) %>% ungroup %>% filter_city(city_fltr=c("[M|m]edel","Envi","Itag","Estrell","Bello"))
+
 ## Medellin
 mde_infectados_df <- infectados_df %>% filter_city("[M|m]edel")
 #mde_infectados_df$date <- dmy(mde_infectados_df$date)
@@ -65,6 +82,7 @@ totalMedellinInfectados <-  max(as.numeric(mde_infectados_df$total), na.rm=TRUE)
 ## Otra manera de detectar los no Recuperados y no Fallecidos
 activos_MDE <- infectados_df %>% filter_city("[M|m]edel") %>% filter_status(c("Recuperado","Fallecido"), inverse_logic = TRUE) %>% nrow()
 ## | Que se puede replicar acá
+
 ## V
 activos_ENV <-  dplyr::filter(infectados_df, grepl("Envi",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
 activos_ITA <-  dplyr::filter(infectados_df, grepl("Itag",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
