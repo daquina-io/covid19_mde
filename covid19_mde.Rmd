@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r, include=FALSE}
-library(rmarkdown)
+if(!require(rmarkdown)){install.packages("rmarkdown")}
 
 source("analisis_covid19_mde.R")
 ```
@@ -24,8 +24,8 @@ table
 
 
 ## Acumulados Medellín
-```{r, echo=FALSE}
-Graph.Acumulados.Mde
+```{r, echo=FALSE, warning=FALSE}
+ Graph.Acumulados.Mde
 ```
 
 
