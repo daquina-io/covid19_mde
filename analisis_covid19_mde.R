@@ -15,14 +15,17 @@ if(!require(dplyr)){install.packages("dplyr")}
 ## Datos de instituto nacional de salud
 ##
 data <- read.csv("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv", header = FALSE)
-head(data,20)
+head(data)
 data <- data[-1,]
 infectados_df <- data
+#infectados_df <- select(infectados_df , -filter(infectados_df$date <= Sys.Date()))
+#infectados_df <- filter(infectados_df$date < Sys.Date() + 1 )
 colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate", "tipo_recuperacion", "departamento","codigo_pais", "pertenencia_etnica", "nombre_grupo_etnico" )
 infectados_df$date <- lubridate::ymd_hms(as.character(infectados_df$date))
 head(infectados_df$date, 5)
 
 ## Dataset
+
 ultimaFecha <- max(infectados_df$date, na.rm=TRUE)
 ## Colombia
 totalColombiaInfectados <- max(as.numeric(infectados_df$id), na.rm=TRUE)
@@ -55,6 +58,13 @@ filter_city <- function(df, city_fltr="[M|m]edel") {
 filter_city(infectados_df)
 ## Medellin
 mde_infectados_df <- infectados_df %>% filter_city("[M|m]edel")
+bog_infectados_df <- infectados_df %>% filter_city("[B|b]ogo")
+cal_infectaods_df <- infectados_df %>% filter_city("[C|c]ali")
+cities_df <- rbind(mde_infectados_df,bog_infectados_df,cal_infectaods_df)
+acumuladosCities <- plot_ly(  x = cities_df$date, y = mde_infectados_df$total, type ='scatter', mode = 'lines', line = list(width = 2), name='Medellin' )%>%
+    layout(yaxis = list(title = 'Acumulados Medellín COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))
+Graph.Acumulados.Cities <- ggplotly(acumuladosCities)
+
 #mde_infectados_df$date <- dmy(mde_infectados_df$date)
 #mde_infectados_df <- cbind(Row.Names = rownames(mde_infectados_df), mde_infectados_df)
 mde_infectados_df<-mde_infectados_df %>% group_by(`date`) %>% summarise(totalDia=n())
@@ -185,10 +195,10 @@ changeRange <- function(oldValue, oldMin, oldMax, newMin, newMax){
     return(newValue)
 }
 
-annY1 <-  changeRange(0.08, 0, 1600, 0, totalMedellinInfectados)
-annY2 <- changeRange(0.24, 0, 1600, 0, totalMedellinInfectados)
-annY3 <- changeRange(0.42, 0, 1600, 0, totalMedellinInfectados)
-annY4 <-  changeRange(0.89, 0, 1600, 0, totalMedellinInfectados)
+annY1 <-  changeRange(0.30, 0, 1600, 0, totalMedellinInfectados)
+annY2 <- changeRange(0.46, 0, 1600, 0, totalMedellinInfectados)
+annY3 <- changeRange(0.66, 0, 1600, 0, totalMedellinInfectados)
+annY4 <-  changeRange(1.13, 0, 1600, 0, totalMedellinInfectados)
 annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2020-03-24"), text = "Inicia Cuarentena Colombia")
 annotation2 <- list(yref = 'paper', xref = "x", y = annY2, x = as.Date("2020-05-08"), text = "Dia de la Madre")
 annotation3 <- list(yref = 'paper', xref = "x", y = annY3, x = as.Date("2020-06-01"), text = "Flexibilización Cuarent.")
