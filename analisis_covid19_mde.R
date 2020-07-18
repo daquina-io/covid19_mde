@@ -18,7 +18,7 @@ data <- read.csv("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv", header
 head(data,20)
 data <- data[-1,]
 infectados_df <- data
-infectados_df <- select(infectados_df , -filter(infectados_df$date <= Sys.Date()))
+infectados_df <- infectados_df %>% filter(date <= Sys.Date() )
 colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate", "tipo_recuperacion", "departamento","codigo_pais", "pertenencia_etnica", "nombre_grupo_etnico" )
 infectados_df$date <- lubridate::ymd_hms(as.character(infectados_df$date))
 head(infectados_df$date, 5)
