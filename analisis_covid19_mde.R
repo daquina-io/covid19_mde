@@ -1,4 +1,4 @@
-rm(list=ls())
+##rm(list=ls())
 
 if(!require(plotly)){install.packages("plotly")}
 if(!require(lubridate)){install.packages("lubridate")}
@@ -8,21 +8,28 @@ if(!require(purrr)){install.packages("purrr")}
 if(!require(profvis)){install.packages("profvis")}
 if(!require(DT)){install.packages("DT")}
 if(!require(dplyr)){install.packages("dplyr")}
-##profvis({
-##profvis({
 
+##profvis({
+## test ===== viales
+viales <- read.csv("viales.csv")
 ##
 ## Datos de instituto nacional de salud
 ##
-data <- read.csv("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv", header = FALSE)
-head(data)
+##data <- read.csv("https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv", header = FALSE)
+##
+## Get the data with: curl https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv > Casos_positivos_de_COVID-19_en_Colombia.csv
+data <- read.csv("Casos_positivos_de_COVID-19_en_Colombia.csv", header = FALSE)
+
+#head(data, 5)
 data <- data[-1,]
 infectados_df <- data
-#infectados_df <- select(infectados_df , -filter(infectados_df$date <= Sys.Date()))
-#infectados_df <- filter(infectados_df$date < Sys.Date() + 1 )
-colnames(infectados_df) <- c("id", "date", "codigoDIVIPOLA", "city", "localization","status", "age", "sex", "type", "condition", "origin", "FIS", "deathDate", "diagnosisDate", "recoveredDate", "webDate", "tipo_recuperacion", "departamento","codigo_pais", "pertenencia_etnica", "nombre_grupo_etnico" )
-infectados_df$date <- lubridate::ymd_hms(as.character(infectados_df$date))
-head(infectados_df$date, 5)
+
+colnames(infectados_df) <- c( "dateWeb","id","date", "codigoDIVIPOLA", "departamento", "codigoDivipolaMunicipio", "city", "age", "unidadEdad", "sex","type", "localization","condition", "codigoISOpais","nombrePais", "status",  "FIS", "deathDate", "diagnosisDate", "recoveredDate", "tipo_recuperacion",  "pertenencia_etnica", "nombre_grupo_etnico" )
+infectados_df$date <- lubridate::dmy_hms(as.character(infectados_df$date))
+
+unique(infectados_df$local)
+
+infectados_df <- infectados_df %>% filter(date <= Sys.Date() ) ## filtra el futuro
 
 ## Dataset
 
@@ -37,6 +44,7 @@ filter_status <- function(df, status_fltr=tipos_estado, inverse_logic = FALSE) {
     if(inverse_logic) return(df %>% filter(!(status %in% status_fltr)))
     df %>% filter(status %in% status_fltr)
 }
+
 
 fallecidos <- filter_status(infectados_df, c("Fallecido")) %>% nrow()
 recuperados <- filter_status(infectados_df, c("Recuperado")) %>% nrow()
@@ -54,7 +62,7 @@ summary_cities(by_date = TRUE) %>% filter(city %in% c())
 
 ## Filtro de ciudades
 ## Se puede pasar un array de patrones regex para filtrar, o uno solo string con el patrón regex para filtrar
-filter_city <- function(df, city_fltr=c("[M|m]edel","Envi")) {
+filter_city <- function(df, city_fltr=c("MEDEL","ENVIG")) {
     if(typeof(city_fltr)  == "character" & length(city_fltr) > 1) {
         d <- map(city_fltr, function(c) {
             df %>% filter(stringr::str_detect(df$city,c))
@@ -68,15 +76,15 @@ filter_city <- function(df, city_fltr=c("[M|m]edel","Envi")) {
 ## aca filtra los patrones por defecto c("[M|m]edel","Envi")
 filter_city(infectados_df) %>% select(city) %>% unique
 ## Acá filtra el patrón regex solo para Medellín
-infectados_df %>% filter_city("[M|m]edel") %>% select(city) %>% unique
+infectados_df %>% filter_city("MEDELL") %>% select(city) %>% unique
 ##################
 ## Así agrego todos los datos para todas las ciudades y filtro solo las que deseo tener en cuenta
-datos <- summary_cities(by_date = TRUE) %>% ungroup %>% filter_city(city_fltr=c("[M|m]edel","Envi","Itag","Estrell","Bello"))
+datos <- summary_cities(by_date = TRUE) %>% ungroup %>% filter_city(city_fltr=c("MEDELL","ENVI","ITAG","ESTRELL","BELLO"))
 
 ## Medellin
-mde_infectados_df <- infectados_df %>% filter_city("[M|m]edel")
-bog_infectados_df <- infectados_df %>% filter_city("[B|b]ogo")
-cal_infectaods_df <- infectados_df %>% filter_city("[C|c]ali")
+mde_infectados_df <- infectados_df %>% filter_city("MEDE")
+bog_infectados_df <- infectados_df %>% filter_city("BOGO")
+cal_infectaods_df <- infectados_df %>% filter_city("CALI")
 cities_df <- rbind(mde_infectados_df,bog_infectados_df,cal_infectaods_df)
 acumuladosCities <- plot_ly(  x = cities_df$date, y = mde_infectados_df$total, type ='scatter', mode = 'lines', line = list(width = 2), name='Medellin' )%>%
     layout(yaxis = list(title = 'Acumulados Medellín COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))
@@ -89,38 +97,55 @@ mde_infectados_df$total <- cumsum(mde_infectados_df$totalDia)
 
 totalMedellinInfectados <-  max(as.numeric(mde_infectados_df$total), na.rm=TRUE)
 
+fallecidosPor100milMDE_df <- infectados_df %>% filter_city("MEDELL") %>%  filter_status(  c("Fallecido")) %>% group_by(`date`) %>% summarise(totalDia=n())
+fallecidosPor100milMDE_df$totalDia <- fallecidosPor100milMDE_df$totalDia / (2427129/100000)
+
+fallecidosVial100milMDE_df <- viales %>%  group_by(`FechaMuerte`) %>% summarise(totalDia=n())
+fallecidosVial100milMDE_df$totalDia <- fallecidosVial100milMDE_df$totalDia / (2427129/100000)
+
+
+dfFallecidosPor100milBEL <- infectados_df %>% filter_city("BELL") %>%  filter_status(  c("Fallecido")) %>% group_by(`date`) %>% summarise(totalDia=n())
+dfFallecidosPor100milBEL$totalDia <- dfFallecidosPor100milBEL$totalDia / (533973/100000)
+dfFallecidosPor100milENV <- infectados_df %>% filter_city("ENVIG") %>%  filter_status(  c("Fallecido")) %>% group_by(`date`) %>% summarise(totalDia=n())
+dfFallecidosPor100milENV$totalDia <- dfFallecidosPor100milENV$totalDia / (232854/100000)
+dfFallecidosPor100milITA <- infectados_df %>% filter_city("ITAGU") %>%  filter_status(  c("Fallecido")) %>% group_by(`date`) %>% summarise(totalDia=n())
+dfFallecidosPor100milITA$totalDia <- dfFallecidosPor100milITA$totalDia / (279894/100000)
+dfFallecidosPor100milBOG <- infectados_df %>% filter_city("BOGOT") %>%  filter_status(  c("Fallecido")) %>% group_by(`date`) %>% summarise(totalDia=n())
+dfFallecidosPor100milBOG$totalDia <- dfFallecidosPor100milBOG$totalDia / (7412566 / 100000)
+
 ## Otra manera de detectar los no Recuperados y no Fallecidos
-activos_MDE <- infectados_df %>% filter_city("[M|m]edel") %>% filter_status(c("Recuperado","Fallecido"), inverse_logic = TRUE) %>% nrow()
+activos_MDE <- infectados_df %>% filter_city("MEDEL") %>% filter_status(c("Recuperado","Fallecido"), inverse_logic = TRUE) %>% nrow()
 ## | Que se puede replicar acá
 
 ## V
-activos_ENV <-  dplyr::filter(infectados_df, grepl("Envi",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
-activos_ITA <-  dplyr::filter(infectados_df, grepl("Itag",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
-activos_LAE <-  dplyr::filter(infectados_df, grepl("Estrell",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
-activos_BEL <-  dplyr::filter(infectados_df, grepl("Bello",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
-en_casa_MDE <-   dplyr::filter(infectados_df, grepl("Medel",city)) %>% dplyr::filter(grepl("Casa",status ))  %>% nrow()
-recuperados_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("Recuperado",status ))
+##activos_MDE <-  dplyr::filter(infectados_df, grepl("MEDE",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
+activos_ENV <-  dplyr::filter(infectados_df, grepl("ENVI",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
+activos_ITA <-  dplyr::filter(infectados_df, grepl("ITAG",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
+activos_LAE <-  dplyr::filter(infectados_df, grepl("ESTREL",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
+activos_BEL <-  dplyr::filter(infectados_df, grepl("BELL",city)) %>% dplyr::filter(!grepl("Recuperado",status )) %>% dplyr::filter(!grepl("Fallecido",status )) %>% nrow()
+en_casa_MDE <-   dplyr::filter(infectados_df, grepl("MEDELL",city)) %>% dplyr::filter(grepl("Casa",status ))  %>% nrow()
+recuperados_mde <-infectados_df %>% dplyr::filter(grepl("MEDELL",city ))  %>%  dplyr::filter(grepl("Recuperado",status ))
 recuperados_mde <- nrow(na.omit(recuperados_mde))
-fallecidos_mde <-infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("Fallecido",status ))
+fallecidos_mde <-infectados_df %>% dplyr::filter(grepl("MEDELL",city ))  %>%  dplyr::filter(grepl("Fallecido",status ))
 fallecidos_mde <- nrow(na.omit(fallecidos_mde))
 fallecidos_por_millon_mde <- format(round(
     (fallecidos_mde/2529403)*1000000,  2), scientific = FALSE)
-uciMDE <-  infectados_df %>% dplyr::filter(grepl("Medel",city ))  %>%  dplyr::filter(grepl("UCI",status ))  ## hay 400
+uciMDE <-  infectados_df %>% dplyr::filter(grepl("MEDELL",city ))  %>%  dplyr::filter(grepl("UCI",localization ))  ## asumiendo 264
 uciMDE <- nrow(na.omit(uciMDE))
-portionCalc <- (uciMDE * 100)/80
-portion <- paste0(portionCalc,"%")
+portionCalc <- uciMDE 
+portion <- paste0(round(portionCalc,1), "%")
 relacion_fallecido_diagnoticado_MDE <-  paste0(round(fallecidos_mde/totalMedellinInfectados*100, 1), "%" )
 relacion_recuperados_MDE_en_Diagnosticados_MDE <- paste0(round(recuperados_mde/totalMedellinInfectados*100, 1), "%")
 relacion_diagnosticados_MDE_en_COL <- paste0(round(totalMedellinInfectados/totalColombiaInfectados*100, 1), "%")
 
 ## Data
-owiData <- read.csv("https://covid.ourworldindata.org/data/ecdc/total_deaths.csv")
-head(owiData,5)
-owiData$Colombia
+## owiData <- read.csv("https://covid.ourworldindata.org/data/ecdc/total_deaths.csv")
+## head(owiData,5)
+## owiData$Colombia
 
 ## Data MDE
-mdeData <- read.csv("https://www.datos.gov.co/api/views/imj6-7tfq/rows.csv")
-head(mdeData,30)
+#mdeData <- read.csv("https://www.datos.gov.co/api/views/imj6-7tfq/rows.csv")
+#head(mdeData,30)
 
 ## Dataset Defunciones MDE COLUMNA, REPETIDA NO CARGA
 ##defunMDE <- read.csv("http://medata.gov.co/sites/default/files/medata_harvest_files/defunciones.csv")
@@ -139,7 +164,7 @@ tableData <- c(fallecidos,
                uciMDE,
                fallecidos_mde,
                fallecidos_por_millon_mde,
-               portion,
+               #portion,
                relacion_fallecido_diagnoticado_MDE,
                relacion_diagnosticados_MDE_en_COL )
 dfTableData <- data.frame(tableData)
@@ -152,10 +177,10 @@ rownames(dfTableData) <- c("Fallecidos COL",
                            "Activos LAE",
                            "Activos BEL",
                            "En Casa MDE",
-                           "En UCI MDE",
+                           "En UCI MDE (Según CRUE son 969)",
                            "Fallecidos MDE",
                            "Fallecidos por Millon MDE",
-                           "Ocupacion de UCI's en MDE por COVID19 (Asumiendo 80 )",
+                           #"Ocupacion de UCI's en MDE por COVID19 ",
                            "Relación:  Fallecidos MDE / Diagnosticados MDE",
                            "Relación:   Diagnosticados MDE / Diagnosticados COL" )
 table <- datatable(dfTableData,
@@ -167,7 +192,39 @@ table <- datatable(dfTableData,
                        pageLength = 15
                        ))
 
-## -- GRAPHS ?
+## -- GRAPHS
+fun_color_range <- colorRampPalette(c("yellow", "green"))   # Apply colorRampPalette
+my_colors <- fun_color_range(10)                          # Extract 100 color codes
+line.fmt = list(dash="solid", width = 0.5, color=NULL)
+
+### ------ FALLECIDOS POR 100mil MDE  ----
+fallecidos100milMDE.fig <- plot_ly(  x = fallecidosPor100milMDE_df$date, y = fallecidosPor100milMDE_df$totalDia, type ='scatter', mode = 'lines', line = list(width = 2), name='Medellin', width = 4.0, color = "#e08e0b" )%>%
+    layout(yaxis = list(title = 'Fallecidos por 100mil habitantes en MDE'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))
+Graph.FallecidosPor100milMDE <- ggplotly(fallecidos100milMDE.fig)
+Graph.FallecidosPor100milMDE <- Graph.FallecidosPor100milMDE %>% add_lines( x=fallecidosPor100milMDE_df$date, y=fallecidosPor100milMDE_df$totalDia, line=line.fmt, name="Smooth", color = c(my_colors[3]), geom_smooth(span = 0.5))
+##Graph.FallecidosPor100milMDE <- Graph.FallecidosPor100milMDE %>% add_lines( x=dfFallecidosPor100milENV$date, y=dfFallecidosPor100milENV$totalDia, line=line.fmt, name="Envigado", color = c(my_colors[3]))
+##Graph.FallecidosPor100milMDE <- Graph.FallecidosPor100milMDE %>% add_lines( x=dfFallecidosPor100milITA$date, y=dfFallecidosPor100milITA$totalDia, line=line.fmt, name="Itagüí", color = c(my_colors[4]))
+##Graph.FallecidosPor100milMDE <- Graph.FallecidosPor100milMDE %>% add_lines( x=dfFallecidosPor100milBOG$date, y=dfFallecidosPor100milBOG$totalDia, line=line.fmt, name="Bogotá", color = c(my_colors[5]))
+
+
+### ------ FALLECIDOS POR 100mil comparativo municipios ----
+fallecidos100milMDE_muni.fig <- plot_ly(  x = fallecidosPor100milMDE_df$date, y = fallecidosPor100milMDE_df$totalDia, type ='scatter', mode = 'lines', line = list(width = 2), name='Medellin', width = 4.0, color = "#e08e0b" )%>%
+    layout(yaxis = list(title = 'Fallecidos por 100mil habitantes en Municipios por COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))
+Graph.FallecidosPor100milMDE_muni <- ggplotly(fallecidos100milMDE_muni.fig)
+Graph.FallecidosPor100milMDE_muni <- Graph.FallecidosPor100milMDE_muni %>% add_lines( x=dfFallecidosPor100milBEL$date, y=dfFallecidosPor100milBEL$totalDia, line=line.fmt, name="Bello", color = c(my_colors[2]))
+Graph.FallecidosPor100milMDE_muni <- Graph.FallecidosPor100milMDE_muni %>% add_lines( x=dfFallecidosPor100milENV$date, y=dfFallecidosPor100milENV$totalDia, line=line.fmt, name="Envigado", color = c(my_colors[3]))
+Graph.FallecidosPor100milMDE_muni <- Graph.FallecidosPor100milMDE_muni %>% add_lines( x=dfFallecidosPor100milITA$date, y=dfFallecidosPor100milITA$totalDia, line=line.fmt, name="Itagüí", color = c(my_colors[4]))
+Graph.FallecidosPor100milMDE_muni <- Graph.FallecidosPor100milMDE_muni %>% add_lines( x=dfFallecidosPor100milBOG$date, y=dfFallecidosPor100milBOG$totalDia, line=line.fmt, name="Bogotá", color = c(my_colors[5]))
+
+
+## otras causas
+fallecidos100milMDE.fig.otras <- plot_ly(  x = fallecidosPor100milMDE_df$date, y = fallecidosPor100milMDE_df$totalDia, type ='scatter', mode = 'lines', line = list(width = 1), name='Covid19', width = 1.0, color = "#e08e0b" )%>%
+    layout(yaxis = list(title = 'Fallecidos por 100mil habitantes en Medellin'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))
+Graph.FallecidosPor100milMDE.otras <- ggplotly(fallecidos100milMDE.fig.otras)
+Graph.FallecidosPor100milMDE.otras <- Graph.FallecidosPor100milMDE.otras %>% add_lines( x=fallecidosVial100milMDE_df$FechaMuerte, y=fallecidosVial100milMDE_df$totalDia, line=line.fmt, name="Viales", width = 4.0, color = c(my_colors[2]))
+
+
+### ----- ACUMULADOS MDE ------
 # ti = 1:length(mde_infectados_df$totalDia)
 # m1 = lm(mde_infectados_df$totalDia~ti)
 # m2 = lm(mde_infectados_df$totalDia~ti+I(ti^2))
@@ -213,10 +270,10 @@ changeRange <- function(oldValue, oldMin, oldMax, newMin, newMax){
     return(newValue)
 }
 
-annY1 <-  changeRange(0.30, 0, 1600, 0, totalMedellinInfectados)
-annY2 <- changeRange(0.46, 0, 1600, 0, totalMedellinInfectados)
-annY3 <- changeRange(0.66, 0, 1600, 0, totalMedellinInfectados)
-annY4 <-  changeRange(1.13, 0, 1600, 0, totalMedellinInfectados)
+annY1 <-  changeRange(1.80, 0, 1600, 0, totalMedellinInfectados)
+annY2 <- changeRange(1.96, 0, 1600, 0, totalMedellinInfectados)
+annY3 <- changeRange(2.16, 0, 1600, 0, totalMedellinInfectados)
+annY4 <-  changeRange(2.53, 0, 1600, 0, totalMedellinInfectados)
 annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2020-03-24"), text = "Inicia Cuarentena Colombia")
 annotation2 <- list(yref = 'paper', xref = "x", y = annY2, x = as.Date("2020-05-08"), text = "Dia de la Madre")
 annotation3 <- list(yref = 'paper', xref = "x", y = annY3, x = as.Date("2020-06-01"), text = "Flexibilización Cuarent.")
