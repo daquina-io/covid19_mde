@@ -23,6 +23,17 @@ table
 [Código para repoducir estas gráficas (en R)](https://github.com/daquina-io/covid19_mde) 
 
 
+## Relacion: Fallecidos por 100mil habitantes (Municipios)
+```{r, echo=FALSE, warning=FALSE}
+ Graph.FallecidosPor100milMDE
+```
+
+## Relacion: Fallecidos por 100mil habitantes diferentes causas
+```{r, echo=FALSE, warning=FALSE}
+Graph.FallecidosPor100milMDE.otras 
+```
+
+
 ## Acumulados Medellín
 ```{r, echo=FALSE, warning=FALSE}
  Graph.Acumulados.Mde
