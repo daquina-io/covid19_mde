@@ -29,7 +29,7 @@ infectados_df$date <- lubridate::dmy_hms(as.character(infectados_df$date))
 
 unique(infectados_df$local)
 
-infectados_df <- infectados_df %>% filter(date <= Sys.Date() ) ## filtra el futuro
+infectados_df <- infectados_df %>% filter(date <= Sys.Date() - 14 ) ## filtra el futuro y descarta mediciones de los últimos 14 días (etapa de incubación)
 
 ## Dataset
 
@@ -270,14 +270,15 @@ changeRange <- function(oldValue, oldMin, oldMax, newMin, newMax){
     return(newValue)
 }
 
-annY1 <-  changeRange(1.80, 0, 1600, 0, totalMedellinInfectados)
-annY2 <- changeRange(1.96, 0, 1600, 0, totalMedellinInfectados)
-annY3 <- changeRange(2.16, 0, 1600, 0, totalMedellinInfectados)
-annY4 <-  changeRange(2.53, 0, 1600, 0, totalMedellinInfectados)
-annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2020-03-24"), text = "Inicia Cuarentena Colombia")
-annotation2 <- list(yref = 'paper', xref = "x", y = annY2, x = as.Date("2020-05-08"), text = "Dia de la Madre")
-annotation3 <- list(yref = 'paper', xref = "x", y = annY3, x = as.Date("2020-06-01"), text = "Flexibilización Cuarent.")
-annotation4 <- list(yref = 'paper', xref = "x", y = annY4, x = as.Date("2020-06-19"), text = "Día sin IVA")
+maxAcum <- 318000 ## TODO: grab from data
+annY1 <-  changeRange(210/maxAcum+0.08, 0, maxAcum, 0, totalMedellinInfectados)
+annY2 <- changeRange(1647/maxAcum+0.08, 0, maxAcum, 0, totalMedellinInfectados)
+annY3 <- changeRange(146789/maxAcum+0.08, 0, maxAcum, 0, totalMedellinInfectados)
+annY4 <-  changeRange(154153/maxAcum+0.08, 0, maxAcum, 0, totalMedellinInfectados)
+annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2020-03-24")+14, text = "Inicia Cuarentena Colombia")
+annotation2 <- list(yref = 'paper', xref = "x", y = annY2, x = as.Date("2020-06-19")+14, text = "Dia sin IVA")
+annotation3 <- list(yref = 'paper', xref = "x", y = annY3, x = as.Date("2020-12-24")+14, text = "Navidad")
+annotation4 <- list(yref = 'paper', xref = "x", y = annY4, x = as.Date("2020-12-31")+14, text = "Año nuevo")
 acumuladosMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$total, type ='scatter', mode = 'lines', line = list(width = 2), name='Medellin' )%>%
     layout(yaxis = list(title = 'Acumulados Medellín COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))%>%
     layout(annotations= list(annotation1, annotation2, annotation3, annotation4))
@@ -286,7 +287,8 @@ acumuladosMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$tot
     ## add_lines( y=predict(m2), line=line.fmt, name="Cuadratic") %>%
     ## add_lines( y=predict(m3), line=line.fmt, name="Cubic") %>%
     ## add_lines( y=predict(m4), line=line.fmt, name="Exponential")
-    Graph.Acumulados.Mde <- Graph.Acumulados.Mde %>% add_lines( x=mde_infectados_exp_df$date, y=exp_reg, line=line.fmt, name="Exponencial")
+Graph.Acumulados.Mde <- Graph.Acumulados.Mde %>% add_lines( x=mde_infectados_exp_df$date, y=exp_reg, line=line.fmt, name="Exponencial")
+Graph.Acumulados.Mde <- Graph.Acumulados.Mde %>% add_lines( x=mde_infectados_df[412:442, ]$date, y=mde_infectados_df[412:442, ]$total, line=line.fmt, name="Marchas")
 
 ## Diagnosticados por dia MDE
 porDiaMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$totalDia, type ='bar', color = I("plum4") )%>%

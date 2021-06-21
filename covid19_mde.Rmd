@@ -18,7 +18,7 @@ source("analisis_covid19_mde.R")
 ```{r, echo=FALSE}
 table
 ```
-Última fecha en el dataset: `r ultimaFecha` / / 
+Última fecha en el dataset (se filtran 14 días): `r ultimaFecha` / / 
 [Dataset (fuente de los datos)](https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv) / /
 [Código para repoducir estas gráficas (en R)](https://github.com/daquina-io/covid19_mde) 
 
@@ -35,6 +35,7 @@ Graph.FallecidosPor100milMDE.otras
 
 
 ## Acumulados Medellín
+(Con marcadores desplazados 14 días de incubación)
 ```{r, echo=FALSE, warning=FALSE}
  Graph.Acumulados.Mde
 ```
