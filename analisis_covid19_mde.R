@@ -11,7 +11,7 @@ if(!require(dplyr)){install.packages("dplyr")}
 
 ##profvis({
 ## test ===== viales
-viales <- read.csv("~/DataSets/viales.csv")
+viales <- read.csv("~/DataSets/viales.csv") ## se descarga de https://www.medellin.gov.co/movilidad/cifras-estudios/viewcategory/3902-cifras-de-incidentalidad-diaria 
 viales <- viales[-2,]
 viales <- viales[1:(length(viales)-5) ]
 colnames(viales) <- c("FechaIncidente", "FechaMuerte", "Direccion", "Condicion", "Sexo", "Edad", "Levantamiento","Comuna", "DiaIncidente", "DiaMuerte", "SemanaIncidente", "FechasIguales")
