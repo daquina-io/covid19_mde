@@ -11,7 +11,10 @@ if(!require(dplyr)){install.packages("dplyr")}
 
 ##profvis({
 ## test ===== viales
-viales <- read.csv("viales.csv")
+viales <- read.csv("~/DataSets/viales.csv")
+viales <- viales[-2,]
+viales <- viales[1:(length(viales)-5) ]
+colnames(viales) <- c("FechaIncidente", "FechaMuerte", "Direccion", "Condicion", "Sexo", "Edad", "Levantamiento","Comuna", "DiaIncidente", "DiaMuerte", "SemanaIncidente", "FechasIguales")
 ##
 ## Datos de instituto nacional de salud
 ##
@@ -289,6 +292,25 @@ acumuladosMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$tot
     ## add_lines( y=predict(m4), line=line.fmt, name="Exponential")
 Graph.Acumulados.Mde <- Graph.Acumulados.Mde %>% add_lines( x=mde_infectados_exp_df$date, y=exp_reg, line=line.fmt, name="Exponencial")
 Graph.Acumulados.Mde <- Graph.Acumulados.Mde %>% add_lines( x=mde_infectados_df[412:442, ]$date, y=mde_infectados_df[412:442, ]$total, line=line.fmt, name="Marchas")
+
+maxAcum <- 318000 ## TODO: grab from data
+annY1 <-  changeRange(210/maxAcum+0.08, 0, maxAcum, 0, totalMedellinInfectados)
+annY2 <- changeRange(1647/maxAcum+0.08, 0, maxAcum, 0, totalMedellinInfectados)
+annY3 <- changeRange(146789/maxAcum+0.08, 0, maxAcum, 0, totalMedellinInfectados)
+annY4 <-  changeRange(154153/maxAcum+0.08, 0, maxAcum, 0, totalMedellinInfectados)
+annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2021-03-24")+14, text = "x")
+annotation2 <- list(yref = 'paper', xref = "x", y = annY2, x = as.Date("2021-04-19")+14, text = "x")
+annotation3 <- list(yref = 'paper', xref = "x", y = annY3, x = as.Date("2021-04-24")+14, text = "x")
+annotation4 <- list(yref = 'paper', xref = "x", y = annY4, x = as.Date("2021-04-30")+14, text = "nuevo")
+acumuladosMdeMarchas <- plot_ly(  x = mde_infectados_df[280:length(mde_infectados_df$date), ]$date, y = mde_infectados_df[280:length(mde_infectados_df$date), ]$total, type ='scatter', mode = 'lines', line = list(width = 2), name='Medellin' )%>%
+    layout(yaxis = list(title = 'Acumulados Medellín COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))%>%
+    layout(annotations= list(annotation1, annotation2, annotation3, annotation4))
+    Graph.Acumulados.Mde.Marchas <- ggplotly(acumuladosMdeMarchas)
+    ## add_lines( y=predict(m1), line=line.fmt, name="Linear") %>%
+    ## add_lines( y=predict(m2), line=line.fmt, name="Cuadratic") %>%
+    ## add_lines( y=predict(m3), line=line.fmt, name="Cubic") %>%
+    ## add_lines( y=predict(m4), line=line.fmt, name="Exponential")
+Graph.Acumulados.Mde.Marchas <- Graph.Acumulados.Mde.Marchas %>% add_lines( x=mde_infectados_df[412:442, ]$date, y=mde_infectados_df[412:442, ]$total, line=line.fmt, name="Marchas")
 
 ## Diagnosticados por dia MDE
 porDiaMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$totalDia, type ='bar', color = I("plum4") )%>%
