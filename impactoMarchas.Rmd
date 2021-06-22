@@ -1,0 +1,55 @@
+---
+title: "Impacto Marchas COVID19"
+output:
+  html_document:
+    toc: false
+    theme: darkly
+---
+
+```{r, include=FALSE}
+if(!require(rmarkdown)){install.packages("rmarkdown")}
+
+source("analisis_covid19_mde.R")
+```
+
+
+Última fecha en el dataset (se filtran 14 días): `r ultimaFecha` / / 
+[Dataset (fuente de los datos)](https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv) / /
+[Código para repoducir estas gráficas (en R)](https://github.com/daquina-io/covid19_mde) 
+
+Menciones de las marchas como fuente del aumento de los contagios de COVID19: TODO poner referentes 
+
+## Relacion: Fallecidos por 100mil habitantes (Municipios)
+TODO: filtrar 2021
+```{r, echo=FALSE, warning=FALSE}
+ Graph.FallecidosPor100milMDE_muni
+```
+
+## Relacion: Fallecidos por 100mil habitantes diferentes causas
+TODO: filtrar 2021, marcar período
+```{r, echo=FALSE, warning=FALSE}
+Graph.FallecidosPor100milMDE.otras 
+```
+
+
+## Acumulados Medellín 
+TODO: filtrar 2021
+(Con marcadores desplazados 14 días de incubación)
+```{r, echo=FALSE, warning=FALSE}
+ Graph.Acumulados.Mde
+```
+
+
+## Acumulados Colombia
+TODO: filtrar 2021, marcar período
+```{r, echo=FALSE}
+Graph.Acum.Col
+```
+
+## Nuevos por día Colombia
+TODO: filtrar 2021, marcar período
+```{r, echo=FALSE}
+Graph.Col
+
+```
+
