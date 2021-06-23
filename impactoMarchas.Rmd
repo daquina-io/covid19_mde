@@ -17,29 +17,36 @@ source("analisis_covid19_mde.R")
 [Dataset (fuente de los datos)](https://www.datos.gov.co/api/views/gt2j-8ykr/rows.csv) / /
 [Código para repoducir estas gráficas (en R)](https://github.com/daquina-io/covid19_mde) 
 
-Menciones de las marchas como fuente del aumento de los contagios de COVID19: TODO poner referentes 
+Si desea hacer su propia versión [Fork](https://github.com/daquina-io/covid19_mde/fork)
 
-## Relacion: Fallecidos por 100mil habitantes (Municipios)
+Si desea sugerir cambios a esta versión [Pull Request](https://github.com/daquina-io/covid19_mde/pulls) 
+
+
+
+*TODO poner referentes* Menciones de las marchas como fuente del aumento de los contagios de COVID19:  
+
+Para evidenciar la responsabilidad de las marchas en el aumento de contagios tendríamos que observar un cambio en la pendiente de los casos diagnosticados en las fechas posteriores a la marchas, si asumimos el 28 de Abril como el inicio de las marchas masivas deberíamos notar una variación en la curva, veamos el caso de Medellín en el año 2021.
+
+
+```{r, echo=FALSE, warning=FALSE}
+ Graph.Acumulados.Mde.Marchas
+```
+
+Observemos el mismo período en Bogota
+
+
+```{r, echo=FALSE, warning=FALSE}
+ Graph.Acumulados.BOG.Marchas
+```
+
+Observemos la variación de la taza de mortalidad por 100mil habitantes en diferentes municipios
+
 TODO: filtrar 2021
 ```{r, echo=FALSE, warning=FALSE}
  Graph.FallecidosPor100milMDE_muni
 ```
 
-## Relacion: Fallecidos por 100mil habitantes diferentes causas
-TODO: filtrar 2021, marcar período
-```{r, echo=FALSE, warning=FALSE}
-Graph.FallecidosPor100milMDE.otras 
-```
-
-
-## Acumulados Medellín 
-TODO: filtrar 2021
-(Con marcadores desplazados 14 días de incubación)
-```{r, echo=FALSE, warning=FALSE}
- Graph.Acumulados.Mde
-```
-
-
+Agrupando los acumulados en Colombia
 ## Acumulados Colombia
 TODO: filtrar 2021, marcar período
 ```{r, echo=FALSE}
