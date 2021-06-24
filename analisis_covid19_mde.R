@@ -231,7 +231,7 @@ Graph.FallecidosPor100milMDE.otras <- ggplotly(fallecidos100milMDE.fig.otras)
 Graph.FallecidosPor100milMDE.otras <- Graph.FallecidosPor100milMDE.otras %>% add_lines( x=fallecidosVial100milMDE_df$FechaMuerte, y=fallecidosVial100milMDE_df$totalDia, line=line.fmt, name="Viales", width = 4.0, color = c(my_colors[2]))
 
 
-### ----- ACUMULADOS MDE ------
+## ========================================== ACUMULADOS MDE ------
 # ti = 1:length(mde_infectados_df$totalDia)
 # m1 = lm(mde_infectados_df$totalDia~ti)
 # m2 = lm(mde_infectados_df$totalDia~ti+I(ti^2))
@@ -297,34 +297,28 @@ acumuladosMde <- plot_ly(  x = mde_infectados_df$date, y = mde_infectados_df$tot
 Graph.Acumulados.Mde <- Graph.Acumulados.Mde %>% add_lines( x=mde_infectados_exp_df$date, y=exp_reg, line=line.fmt, name="Exponencial")
 Graph.Acumulados.Mde <- Graph.Acumulados.Mde %>% add_lines( x=mde_infectados_df[412:442, ]$date, y=mde_infectados_df[412:442, ]$total, line=line.fmt, name="Marchas")
 
-## ===== ACUMULADOS MDE MARCHAS =====
-maxAcum <- 318000 ## TODO: grab from data
-annY1 <-  changeRange(210/maxAcum+0.08, 0, maxAcum, 0, totalMedellinInfectados)
-annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2021-04-28")+14, text = "Inician Marchas")
-acumuladosMdeMarchas <- plot_ly(  x = mde_infectados_df[280:length(mde_infectados_df$date), ]$date, y = mde_infectados_df[280:length(mde_infectados_df$date), ]$total, type ='scatter', mode = 'lines', line = list(width = 2), name='Medellin' )%>%
+## ======================================= ACUMULADOS MDE MARCHAS =====
+annotationOffset <- 0.14
+maxAcum <- 323000 ## TODO: grab from data
+annY1 <-  270902/maxAcum - annotationOffset
+annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2021-04-28"), text = "Inician Marchas")
+acumuladosMdeMarchas <- plot_ly(  x = mde_infectados_df[280:length(mde_infectados_df$date), ]$date, y = mde_infectados_df[280:length(mde_infectados_df$date), ]$total, type ='scatter', mode = 'lines', line=line.fmt, name='Medellin' )%>%
     layout(yaxis = list(title = 'Acumulados Medellín COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))%>%
-    layout(annotations= list(annotation1))
-    Graph.Acumulados.Mde.Marchas <- ggplotly(acumuladosMdeMarchas)
-    ## add_lines( y=predict(m1), line=line.fmt, name="Linear") %>%
-    ## add_lines( y=predict(m2), line=line.fmt, name="Cuadratic") %>%
-    ## add_lines( y=predict(m3), line=line.fmt, name="Cubic") %>%
-    ## add_lines( y=predict(m4), line=line.fmt, name="Exponential")
-Graph.Acumulados.Mde.Marchas <- Graph.Acumulados.Mde.Marchas %>% add_lines( x=mde_infectados_df[412:442, ]$date, y=mde_infectados_df[412:442, ]$total, line=line.fmt, name="Marchas")
+  layout(annotations= list(annotation1))
+Graph.Acumulados.Mde.Marchas <- ggplotly(acumuladosMdeMarchas)
+Graph.Acumulados.Mde.Marchas <- Graph.Acumulados.Mde.Marchas %>% add_lines( x=mde_infectados_df[412:442, ]$date, y=mde_infectados_df[412:442, ]$total, line = list(color = c(my_colors[5]) , width = 3),  name="Marchas" )
+Graph.Acumulados.Mde.Marchas
 
-
-## ===== ACUMULADOS BOG MARCHAS =====
+## ======================================= ACUMULADOS BOG MARCHAS =====
 maxAcum <- 1096153 ## TODO: grab from data
-annY1 <-  changeRange(801171/maxAcum-0.15, 0, maxAcum, 0, totalBOGInfectados)
+annY1 <-  801171/maxAcum-0.15
 annotation1 <- list(yref = 'paper', xref = "x", y = annY1, x = as.Date("2021-04-25"), text = "Inician Marchas")
 acumuladosBOGMarchas <- plot_ly(  x = bog_infectados_df[280:length(bog_infectados_df$date), ]$date, y = bog_infectados_df[280:length(bog_infectados_df$date), ]$total, type ='scatter', mode = 'lines', line = list(width = 2), name='Bogota' )%>%
     layout(yaxis = list(title = 'Acumulados Bogotá COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8a"))%>%
     layout(annotations= list(annotation1))
-    Graph.Acumulados.BOG.Marchas <- ggplotly(acumuladosBOGMarchas)
-    ## add_lines( y=predict(m1), line=line.fmt, name="Linear") %>%
-    ## add_lines( y=predict(m2), line=line.fmt, name="Cuadratic") %>%
-    ## add_lines( y=predict(m3), line=line.fmt, name="Cubic") %>%
-    ## add_lines( y=predict(m4), line=line.fmt, name="Exponential")
-Graph.Acumulados.BOG.Marchas <- Graph.Acumulados.BOG.Marchas %>% add_lines( x=bog_infectados_df[417:442, ]$date, y=bog_infectados_df[417:442, ]$total, line=line.fmt, name="Marchas")
+Graph.Acumulados.BOG.Marchas <- ggplotly(acumuladosBOGMarchas)
+Graph.Acumulados.BOG.Marchas <- Graph.Acumulados.BOG.Marchas %>% add_lines( x=bog_infectados_df[417:442, ]$date, y=bog_infectados_df[417:442, ]$total, line = list(color = c(my_colors[6]) , width = 3), name="Marchas")
+Graph.Acumulados.BOG.Marchas
 
 
 
