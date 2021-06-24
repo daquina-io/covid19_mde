@@ -306,7 +306,7 @@ acumuladosMdeMarchas <- plot_ly(  x = mde_infectados_df[280:length(mde_infectado
     layout(yaxis = list(title = 'Acumulados Medellín COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))%>%
   layout(annotations= list(annotation1))
 Graph.Acumulados.Mde.Marchas <- ggplotly(acumuladosMdeMarchas)
-Graph.Acumulados.Mde.Marchas <- Graph.Acumulados.Mde.Marchas %>% add_lines( x=mde_infectados_df[412:442, ]$date, y=mde_infectados_df[412:442, ]$total, line = list(color = c(my_colors[5]) , width = 3),  name="Marchas" )
+Graph.Acumulados.Mde.Marchas <- Graph.Acumulados.Mde.Marchas %>% add_lines( x=mde_infectados_df[412:442, ]$date, y=mde_infectados_df[412:442, ]$total, line = list(color = "green" , width = 3),  name="Marchas" )
 Graph.Acumulados.Mde.Marchas
 
 ## ======================================= ACUMULADOS BOG MARCHAS =====
@@ -317,7 +317,7 @@ acumuladosBOGMarchas <- plot_ly(  x = bog_infectados_df[280:length(bog_infectado
     layout(yaxis = list(title = 'Acumulados Bogotá COVID19'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8a"))%>%
     layout(annotations= list(annotation1))
 Graph.Acumulados.BOG.Marchas <- ggplotly(acumuladosBOGMarchas)
-Graph.Acumulados.BOG.Marchas <- Graph.Acumulados.BOG.Marchas %>% add_lines( x=bog_infectados_df[417:442, ]$date, y=bog_infectados_df[417:442, ]$total, line = list(color = c(my_colors[6]) , width = 3), name="Marchas")
+Graph.Acumulados.BOG.Marchas <- Graph.Acumulados.BOG.Marchas %>% add_lines( x=bog_infectados_df[417:442, ]$date, y=bog_infectados_df[417:442, ]$total, line = list(color = "green" , width = 3), name="Marchas")
 Graph.Acumulados.BOG.Marchas
 
 
