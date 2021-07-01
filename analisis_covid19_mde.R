@@ -208,7 +208,13 @@ line.fmt = list(dash="solid", width = 0.5, color=NULL)
 fallecidos100milMDE.fig <- plot_ly(  x = fallecidosPor100milMDE_df$date, y = fallecidosPor100milMDE_df$totalDia, type ='scatter', mode = 'lines', line = list(width = 2), name='Medellin', width = 4.0, color = "#e08e0b" )%>%
     layout(yaxis = list(title = 'Fallecidos por 100mil habitantes en MDE'), plot_bgcolor ="#222", paper_bgcolor="#222", font = list(color ="#00bc8c"))
 Graph.FallecidosPor100milMDE <- ggplotly(fallecidos100milMDE.fig)
-Graph.FallecidosPor100milMDE <- Graph.FallecidosPor100milMDE %>% add_lines( x=fallecidosPor100milMDE_df$date, y=fallecidosPor100milMDE_df$totalDia, line=line.fmt, name="Smooth", color = c(my_colors[3]), geom_smooth(span = 0.5))
+
+Graph.FallecidosPor100milMDE <- Graph.FallecidosPor100milMDE %>%
+  add_lines( x=fallecidosPor100milMDE_df$date, y=fallecidosPor100milMDE_df$totalDia, line=line.fmt, name="Smooth", color = c(my_colors[3]), geom_smooth(span = 0.5))
+
+Graph.FallecidosPor100milMDE <- Graph.FallecidosPor100milMDE %>%
+  add_lines( x=fallecidosPor100milMDE_df[331:361, ]$date, y=fallecidosPor100milMDE_df[331:361, ]$totalDia, line = list(color = "green" , width = 3), name="Marchas")
+
 ##Graph.FallecidosPor100milMDE <- Graph.FallecidosPor100milMDE %>% add_lines( x=dfFallecidosPor100milENV$date, y=dfFallecidosPor100milENV$totalDia, line=line.fmt, name="Envigado", color = c(my_colors[3]))
 ##Graph.FallecidosPor100milMDE <- Graph.FallecidosPor100milMDE %>% add_lines( x=dfFallecidosPor100milITA$date, y=dfFallecidosPor100milITA$totalDia, line=line.fmt, name="Itagüí", color = c(my_colors[4]))
 ##Graph.FallecidosPor100milMDE <- Graph.FallecidosPor100milMDE %>% add_lines( x=dfFallecidosPor100milBOG$date, y=dfFallecidosPor100milBOG$totalDia, line=line.fmt, name="Bogotá", color = c(my_colors[5]))
