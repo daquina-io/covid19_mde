@@ -39,7 +39,12 @@ Observemos el mismo período en Bogota
  Graph.Acumulados.BOG.Marchas
 ```
 
-Observemos la variación de la taza de mortalidad por 100mil habitantes en diferentes municipios
+Observemos la variación de la taza de mortalidad por 100mil habitantes en diferentes municipios, empezemos por Medellín.
+
+```{r, echo=FALSE, warning=FALSE}
+Graph.FallecidosPor100milMDE
+```
+Taza de mortalidad en otros municipios
 
 TODO: filtrar 2021
 ```{r, echo=FALSE, warning=FALSE}
